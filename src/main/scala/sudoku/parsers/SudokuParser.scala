@@ -50,22 +50,17 @@ object JigsawSudokuParser {
       .toSeq
       .transpose
 
-    val groupNumbers = jigsawData
+    val fieldGroups = jigsawData
       .map(_(2))
       .map(_.toInt - 48)
       .sliding(9, 9)
       .toSeq
       .transpose
-
-    val groupPositions = for {
-      (col, x)         <- groupNumbers.zipWithIndex
-      (groupNumber, y) <- col.zipWithIndex
-    } yield (groupNumber, Position(x, y))
-
-    val fieldGroups = groupPositions
+      .zipWithIndex
+      .flatMap { case (col, x) => col.zipWithIndex.map { case (groupNumber, y) => (groupNumber, Position(x, y)) } }
       .groupBy(_._1)
       .view
-      .mapValues(positions => positions.map(_._2))
+      .mapValues(tupledPositions => tupledPositions.map(_._2))
       .toSeq
       .sortBy(_._1)
       .map(_._2)
