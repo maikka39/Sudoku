@@ -1,4 +1,6 @@
 *.class
+*.bak
+*.old
 .idea/
 target/
 .bsp/
