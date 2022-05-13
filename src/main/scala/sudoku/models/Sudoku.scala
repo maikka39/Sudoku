@@ -6,12 +6,14 @@ sealed trait RegularRowsAndCols {
   val grid: Seq[Seq[SudokuField]]
 
   val rowsAndCols: Seq[FieldGroup] = {
-    for {
+    val rowColListList = for {
       n <- grid.indices
       row = grid.indices.map(x => Position(x, n))
       col = grid.indices.map(y => Position(n, y))
     } yield Seq(row, col)
-  }.flatten
+
+    rowColListList.flatten
+  }
 }
 
 sealed trait Sudoku {
@@ -33,9 +35,12 @@ sealed trait Sudoku {
 object Sudoku {
   type FieldGroup = Seq[Position]
 
-  final case class SudokuField(number: Option[Int], helpNumbers: Seq[Int], isPermanent: Boolean = false)
-
-  //  final case class FieldGroup(value: Seq[Position]) extends AnyVal
+  final case class SudokuField(
+    number: Option[Int],
+    helpNumbers: Seq[Int] = Seq(),
+    isPermanent: Boolean = false,
+    isActive: Boolean = true
+  )
 }
 
 final case class RegularSudoku(grid: Seq[Seq[SudokuField]]) extends Sudoku with RegularRowsAndCols {
@@ -44,7 +49,6 @@ final case class RegularSudoku(grid: Seq[Seq[SudokuField]]) extends Sudoku with 
       case 4 => (2, 2)
       case 6 => (3, 2)
       case 9 => (3, 3)
-      case _ => ???
     }
 
     val coordinates = for {
@@ -62,12 +66,32 @@ final case class JigsawSudoku(grid: Seq[Seq[SudokuField]], fieldGroups: Seq[Fiel
     extends Sudoku
     with RegularRowsAndCols
 
-//final case class SamuraiSudoku(grid: Seq[Seq[SudokuField]], fieldGroups: Seq[FieldGroup]) extends Sudoku {
-//  val rowsAndCols: Seq[FieldGroup] = {
-//    for {
-//      n <- grid.indices
-//      row = grid.indices.map(x => Position(x, n))
-//      col = grid.indices.map(y => Position(n, y))
-//    } yield Seq(row, col)
-//  }.flatten
-//}
+final case class SamuraiSudoku(grid: Seq[Seq[SudokuField]]) extends Sudoku {
+  override val fieldGroups: Seq[FieldGroup] = {
+    val coordinates = for {
+      fieldStartX <- grid.indices by 3
+      fieldStartY <- grid.indices by 3
+      if grid(fieldStartX)(fieldStartY).isActive
+      x <- fieldStartX until fieldStartX + 3
+      y <- fieldStartY until fieldStartY + 3
+    } yield (x, y)
+
+    coordinates
+      .map(pos => Position(pos._1, pos._2))
+      .sliding(9, 9)
+      .toSeq
+  }
+
+  override val rowsAndCols: Seq[FieldGroup] = {
+    val rowColListList = for {
+      centerX <- 4 until 17 by 6
+      centerY <- 4 until 17 by 6
+      if grid(centerX)(centerY).isActive
+      n <- -4 until 5
+      row = (-4 until 5).map(x => Position(centerX + x, centerY + n))
+      col = (-4 until 5).map(y => Position(centerX + n, centerY + y))
+    } yield Seq(row, col)
+
+    rowColListList.flatten
+  }
+}
