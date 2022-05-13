@@ -2,10 +2,95 @@ package sudoku.models
 
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.must.Matchers
-import sudoku.models.Sudoku.SudokuField
+import sudoku.models.Sudoku.{FieldGroup, SudokuField}
 import sudoku.testUtils.TestPuzzles
 
 class SudokuSpec extends AnyWordSpec with Matchers {
+  "Sudoku" should {
+    val validSudoku = new Sudoku {
+      override val grid: Seq[Seq[SudokuField]] = Seq(
+        Seq(
+          SudokuField(Some(1), Seq(), isPermanent = true),
+          SudokuField(Some(4), Seq()),
+          SudokuField(Some(2), Seq()),
+          SudokuField(Some(3), Seq())
+        ),
+        Seq(
+          SudokuField(Some(3), Seq()),
+          SudokuField(Some(2), Seq()),
+          SudokuField(Some(4), Seq(), isPermanent = true),
+          SudokuField(Some(1), Seq())
+        ),
+        Seq(
+          SudokuField(Some(4), Seq()),
+          SudokuField(Some(3), Seq(), isPermanent = true),
+          SudokuField(Some(1), Seq()),
+          SudokuField(Some(2), Seq())
+        ),
+        Seq(
+          SudokuField(Some(2), Seq()),
+          SudokuField(Some(1), Seq()),
+          SudokuField(Some(3), Seq()),
+          SudokuField(Some(4), Seq(), isPermanent = true)
+        )
+      )
+      override val fieldGroups: Seq[FieldGroup] = Seq(
+        Seq(Position(0, 0), Position(0, 1), Position(1, 0), Position(1, 1)),
+        Seq(Position(0, 2), Position(0, 3), Position(1, 2), Position(1, 3)),
+        Seq(Position(2, 0), Position(2, 1), Position(3, 0), Position(3, 1)),
+        Seq(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
+      )
+      override val rowsAndCols: Seq[FieldGroup] = Seq(
+        Seq(Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0)),
+        Seq(Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3)),
+        Seq(Position(0, 1), Position(1, 1), Position(2, 1), Position(3, 1)),
+        Seq(Position(1, 0), Position(1, 1), Position(1, 2), Position(1, 3)),
+        Seq(Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2)),
+        Seq(Position(2, 0), Position(2, 1), Position(2, 2), Position(2, 3)),
+        Seq(Position(0, 3), Position(1, 3), Position(2, 3), Position(3, 3)),
+        Seq(Position(3, 0), Position(3, 1), Position(3, 2), Position(3, 3))
+      )
+    }
+
+    "mark a valid sudoku as valid" in {
+      validSudoku.isValid mustBe true
+    }
+
+    "mark a sudoku with an invalid group as invalid" in {
+      val sudoku = new Sudoku {
+        override val grid: Seq[Seq[SudokuField]] = validSudoku.grid
+        override val fieldGroups: Seq[FieldGroup] = Seq(
+          Seq(Position(0, 0), Position(0, 1), Position(1, 1), Position(1, 1)),
+          Seq(Position(0, 2), Position(0, 3), Position(1, 2), Position(1, 3)),
+          Seq(Position(2, 0), Position(2, 1), Position(3, 0), Position(3, 1)),
+          Seq(Position(2, 2), Position(2, 3), Position(3, 2), Position(3, 3))
+        )
+        override val rowsAndCols: Seq[FieldGroup] = validSudoku.rowsAndCols
+      }
+
+      sudoku.isValid mustBe false
+    }
+
+    "mark a sudoku with an invalid row or column as invalid" in {
+      val sudoku = new Sudoku {
+        override val grid: Seq[Seq[SudokuField]]  = validSudoku.grid
+        override val fieldGroups: Seq[FieldGroup] = validSudoku.fieldGroups
+        override val rowsAndCols: Seq[FieldGroup] = Seq(
+          Seq(Position(0, 0), Position(1, 0), Position(3, 0), Position(3, 0)),
+          Seq(Position(0, 0), Position(0, 1), Position(0, 2), Position(0, 3)),
+          Seq(Position(0, 1), Position(1, 1), Position(2, 1), Position(3, 1)),
+          Seq(Position(1, 0), Position(1, 1), Position(1, 2), Position(1, 3)),
+          Seq(Position(0, 2), Position(1, 2), Position(2, 2), Position(3, 2)),
+          Seq(Position(2, 0), Position(2, 1), Position(2, 2), Position(2, 3)),
+          Seq(Position(0, 3), Position(1, 3), Position(2, 3), Position(3, 3)),
+          Seq(Position(3, 0), Position(3, 1), Position(3, 2), Position(3, 3))
+        )
+      }
+
+      sudoku.isValid mustBe false
+    }
+  }
+
   "RegularSudoku" should {
     "calculate the correct rows and columns" in {
       val sudoku = TestPuzzles.regularSudoku4x4
