@@ -55,7 +55,7 @@ object Sudoku {
   )
 }
 
-final case class RegularSudoku(grid: Grid) extends Sudoku with RegularRowsAndCols {
+final class RegularSudoku(val grid: Grid) extends Sudoku with RegularRowsAndCols {
   override val fieldGroups: Seq[FieldGroup] = {
     val fieldSize = grid.length match {
       case 4 => (2, 2)
@@ -74,9 +74,9 @@ final case class RegularSudoku(grid: Grid) extends Sudoku with RegularRowsAndCol
   }
 }
 
-final case class JigsawSudoku(grid: Grid, fieldGroups: Seq[FieldGroup]) extends Sudoku with RegularRowsAndCols
+final class JigsawSudoku(val grid: Grid, val fieldGroups: Seq[FieldGroup]) extends Sudoku with RegularRowsAndCols
 
-final case class SamuraiSudoku(grid: Grid) extends Sudoku {
+final class SamuraiSudoku(val grid: Grid) extends Sudoku {
   override val fieldGroups: Seq[FieldGroup] = {
     val coordinates = for {
       fieldStartX <- grid.indices by 3

@@ -4,7 +4,7 @@ import sudoku.models.Sudoku.SudokuField
 import sudoku.models.{JigsawSudoku, Position, RegularSudoku, SamuraiSudoku}
 
 object TestPuzzles {
-  val regularSudoku4x4: RegularSudoku = RegularSudoku(
+  val regularSudoku4x4: RegularSudoku = new RegularSudoku(
     Seq(
       Seq(
         SudokuField(None, Seq()),
@@ -33,7 +33,7 @@ object TestPuzzles {
     )
   )
 
-  val regularSudoku6x6: RegularSudoku = RegularSudoku(
+  val regularSudoku6x6: RegularSudoku = new RegularSudoku(
     Seq(
       Seq(
         SudokuField(None, Seq()),
@@ -86,7 +86,7 @@ object TestPuzzles {
     )
   )
 
-  val regularSudoku9x9: RegularSudoku = RegularSudoku(
+  val regularSudoku9x9: RegularSudoku = new RegularSudoku(
     Seq(
       Seq(
         SudokuField(Some(7), Seq(), isPermanent = true),
@@ -190,7 +190,7 @@ object TestPuzzles {
     )
   )
 
-  val jigsawSudoku: JigsawSudoku = JigsawSudoku(
+  val jigsawSudoku: JigsawSudoku = new JigsawSudoku(
     List(
       List(
         SudokuField(None, List()),
@@ -395,7 +395,7 @@ object TestPuzzles {
     )
   )
 
-  val samuraiSudoku: SamuraiSudoku = SamuraiSudoku(
+  val samuraiSudoku: SamuraiSudoku = new SamuraiSudoku(
     List(
       List(
         SudokuField(Some(8), List(), isPermanent = true),

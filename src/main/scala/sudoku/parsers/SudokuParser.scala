@@ -37,7 +37,7 @@ object SudokuParser {
         .toSeq
         .transpose
 
-      RegularSudoku(grid)
+      new RegularSudoku(grid)
     }
   }
 
@@ -75,7 +75,7 @@ object SudokuParser {
         regularSudokuArray(0).grid(8) ++ filler ++ regularSudokuArray(3).grid(8)
       )
 
-      SamuraiSudoku(grid)
+      new SamuraiSudoku(grid)
     }
   }
 
@@ -105,7 +105,7 @@ object SudokuParser {
         .sortBy(_._1)
         .map(_._2)
 
-      JigsawSudoku(grid, fieldGroups)
+      new JigsawSudoku(grid, fieldGroups)
     }
   }
 }
