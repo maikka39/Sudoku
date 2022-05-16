@@ -1,25 +1,15 @@
 package sudoku.solvers
 
+import sudoku.models.Sudoku.SudokuField
 import sudoku.models.{Position, Sudoku}
-import sudoku.models.Sudoku.{FieldGroup, Grid, SudokuField}
 
 object BacktrackingSudokuSolver extends SudokuSolver {
-  private def findEmpty(grid: Seq[Seq[SudokuField]]): Option[Position] = {
-    val emptyFields = for {
-      (col, x)   <- grid.zipWithIndex
-      (field, y) <- col.zipWithIndex
-      if field.isActive && field.number.isEmpty
-    } yield Position(x, y)
-
-    emptyFields.headOption
-  }
-
   override def solve(sudoku: Sudoku): Option[Sudoku] = {
     if (sudoku.isValid) Some(sudoku)
     else solve(sudoku, 0)
   }
 
-  private def solve(sudoku: Sudoku, cell: Int): Option[Sudoku] =
+  private def solve(sudoku: Sudoku, cell: Int): Option[Sudoku] = {
     Position(cell / sudoku.grid.length, cell % sudoku.grid.length) match {
       case Position(x, _) if x == sudoku.grid.length => Some(sudoku)
       case Position(x, y) if sudoku.grid(x)(y).number.isDefined || !sudoku.grid(x)(y).isActive =>
@@ -39,4 +29,5 @@ object BacktrackingSudokuSolver extends SudokuSolver {
 
         (1 to sudoku.rowsAndCols.head.length).diff(usedNumbers).collectFirst(Function.unlift(guess))
     }
+  }
 }

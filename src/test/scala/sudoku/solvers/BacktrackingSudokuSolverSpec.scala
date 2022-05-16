@@ -2,8 +2,6 @@ package sudoku.solvers
 
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import sudoku.models.{RegularSudoku, SamuraiSudoku}
-import sudoku.models.Sudoku.SudokuField
 import sudoku.testUtils.TestPuzzles
 
 class BacktrackingSudokuSolverSpec extends AnyWordSpec with Matchers {
