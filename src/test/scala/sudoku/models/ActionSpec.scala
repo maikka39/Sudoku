@@ -1,0 +1,199 @@
+package sudoku.models
+
+import org.scalamock.scalatest.MockFactory
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import sudoku.errors.{FieldNotEditableError, NoSudokuSelectedError, UnsolvableSudokuError}
+import sudoku.models.Sudoku.SudokuField
+import sudoku.solvers.SudokuSolver
+import sudoku.testUtils.TestPuzzles
+
+class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
+  val testSudoku: Sudoku = TestPuzzles.regularSudoku4x4
+
+  "SolveAction" should {
+    "solve a solvable sudoku" in {
+      val mockSolver = mock[SudokuSolver]
+
+      (mockSolver.solve _).expects(testSudoku).returns(Some(testSudoku)).once()
+
+      val newSudoku = SolveAction(mockSolver).execute(Some(testSudoku))
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get mustBe testSudoku
+    }
+
+    "fail on an unsolvable sudoku" in {
+      val mockSolver = mock[SudokuSolver]
+
+      (mockSolver.solve _).expects(testSudoku).returns(None).once()
+
+      val newSudoku = SolveAction(mockSolver).execute(Some(testSudoku))
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case UnsolvableSudokuError() =>
+        case _                       => fail("Wrong error type, expected UnsolvableSudokuError")
+      }
+    }
+
+    "fail when no sudoku is selected" in {
+      val mockSolver = mock[SudokuSolver]
+
+      (mockSolver.solve _).expects(*).never()
+
+      val newSudoku = SolveAction(mockSolver).execute(None)
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case NoSudokuSelectedError() =>
+        case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
+      }
+    }
+  }
+
+  "EnterNumberAction" should {
+    "enter a number when the field doesn't already have the given number and is not permanent" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(None)))
+      )
+
+      val newSudoku = EnterNumberAction(5, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get.grid(1)(3).number.get mustBe 5
+    }
+
+    "remove a number when the field already has the given number and is not permanent" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1))))
+      )
+
+      val newSudoku = EnterNumberAction(1, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get.grid(1)(3).number mustBe None
+    }
+
+    "fail when trying to enter a number in a permanent field" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isPermanent = true)))
+      )
+
+      val newSudoku = EnterNumberAction(1, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case FieldNotEditableError() =>
+        case _                       => fail("Wrong error type, expected FieldNotEditableError")
+      }
+    }
+
+    "fail when trying to enter a number in a inactive field" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isActive = false)))
+      )
+
+      val newSudoku = EnterNumberAction(1, Position(0, 1)).execute(Some(sudoku))
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case FieldNotEditableError() =>
+        case _                       => fail("Wrong error type, expected FieldNotEditableError")
+      }
+    }
+
+    "fail when no sudoku is selected" in {
+      val sudoku = None
+
+      val newSudoku = EnterNumberAction(1, Position(0, 0)).execute(sudoku)
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case NoSudokuSelectedError() =>
+        case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
+      }
+    }
+  }
+
+  "EnterHelpNumberAction" should {
+    "add a number when the field doesn't already have the given number and is not permanent" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(None, Seq(1))))
+      )
+
+      val newSudoku = EnterHelpNumberAction(5, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get.grid(1)(3).helpNumbers mustBe Seq(1, 5)
+    }
+
+    "remove a number when the field already has the given number and is not permanent" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(None, Seq(3, 4))))
+      )
+
+      val newSudoku = EnterHelpNumberAction(3, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get.grid(1)(3).helpNumbers mustBe Seq(4)
+    }
+
+    "fail when trying to enter a number in a permanent field" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isPermanent = true)))
+      )
+
+      val newSudoku = EnterHelpNumberAction(1, Position(1, 3)).execute(Some(sudoku))
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case FieldNotEditableError() =>
+        case _                       => fail("Wrong error type, expected FieldNotEditableError")
+      }
+    }
+
+    "fail when trying to enter a number in a inactive field" in {
+      val sudoku = testSudoku.copy(
+        testSudoku.grid
+          .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isActive = false)))
+      )
+
+      val newSudoku = EnterHelpNumberAction(1, Position(0, 1)).execute(Some(sudoku))
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case FieldNotEditableError() =>
+        case _                       => fail("Wrong error type, expected FieldNotEditableError")
+      }
+    }
+
+    "fail when no sudoku is selected" in {
+      val sudoku = None
+
+      val newSudoku = EnterHelpNumberAction(1, Position(0, 0)).execute(sudoku)
+
+      newSudoku.isLeft mustBe true
+      newSudoku.swap.getOrElse(null) match {
+        case NoSudokuSelectedError() =>
+        case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
+      }
+    }
+  }
+
+  "StartSudokuAction" should {
+    "return the parsed sudoku (depends on SudokuParser)" in {
+      val newSudoku = StartSudokuAction("./src/test/resources/puzzles/puzzle.4x4").execute(None)
+
+      newSudoku.isRight mustBe true
+      newSudoku.toOption.flatten.get.grid mustBe TestPuzzles.regularSudoku4x4.grid
+    }
+  }
+}
