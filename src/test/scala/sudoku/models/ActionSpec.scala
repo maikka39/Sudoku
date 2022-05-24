@@ -4,7 +4,7 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.EitherValues
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import sudoku.errors.{FieldNotEditableError, NoSudokuSelectedError, UnsolvableSudokuError}
+import sudoku.errors.{FieldNotEditableError, NoSudokuSelectedError, SudokuNotFoundError, UnsolvableSudokuError}
 import sudoku.models.Sudoku.SudokuField
 import sudoku.solvers.SudokuSolver
 import sudoku.testUtils.TestPuzzles
@@ -181,6 +181,15 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
       val newSudoku = StartSudokuAction("./src/test/resources/puzzles/puzzle.4x4").execute(None)
 
       newSudoku.value.get.grid mustBe TestPuzzles.regularSudoku4x4.grid
+    }
+
+    "fail when the sudoku is not found (depends on SudokuParser)" in {
+      val newSudoku = StartSudokuAction("abc").execute(None)
+
+      newSudoku.left.value match {
+        case SudokuNotFoundError() =>
+        case _                     => fail("Wrong error type, expected SudokuNotFoundError")
+      }
     }
   }
 }

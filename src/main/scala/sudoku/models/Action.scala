@@ -81,6 +81,6 @@ final case class EnterHelpNumberAction(number: Int, position: Position) extends 
 
 final case class StartSudokuAction(filePath: String) extends Action {
   override def execute(maybeSudoku: Option[Sudoku]): Either[SudokuError, Option[Sudoku]] = {
-    Right(Some(SudokuParser.parse(filePath)))
+    SudokuParser.parse(filePath).map(Some(_))
   }
 }

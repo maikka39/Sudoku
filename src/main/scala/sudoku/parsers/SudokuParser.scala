@@ -1,25 +1,37 @@
 package sudoku.parsers
 
+import sudoku.errors.{InvalidSudokuError, SudokuError, SudokuNotFoundError}
 import sudoku.models.Sudoku.SudokuField
 import sudoku.models.{JigsawSudoku, Position, RegularSudoku, SamuraiSudoku, Sudoku}
 
+import java.io.FileNotFoundException
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
 object SudokuParser {
-  def parse(filePath: String): Sudoku = {
+  def parse(filePath: String): Either[SudokuError, Sudoku] = {
     val puzzleType = filePath.split("\\.").last
 
-    val source = Source.fromFile(filePath)
-    val inputData =
+    val triedInputData = Try {
+      val source = Source.fromFile(filePath)
       try source.getLines.filter(!_.startsWith("#")).mkString("\n")
       finally source.close()
-
-    puzzleType match {
-      case "4x4" | "6x6" | "9x9" => RegularSudokuParser.parse(inputData)
-      case "jigsaw"              => JigsawSudokuParser.parse(inputData)
-      case "samurai"             => SamuraiSudokuParser.parse(inputData)
     }
 
+    triedInputData match {
+      case Failure(exception) =>
+        exception match {
+          case _: FileNotFoundException => Left(SudokuNotFoundError())
+          case e                        => throw e
+        }
+      case Success(inputData) =>
+        puzzleType match {
+          case "4x4" | "6x6" | "9x9" => Right(RegularSudokuParser.parse(inputData))
+          case "jigsaw"              => Right(JigsawSudokuParser.parse(inputData))
+          case "samurai"             => Right(SamuraiSudokuParser.parse(inputData))
+          case _                     => Left(InvalidSudokuError())
+        }
+    }
   }
 
   private def charToSudokuField(char: Char): SudokuField = {
