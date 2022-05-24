@@ -1,6 +1,7 @@
 package sudoku.models
 
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.EitherValues
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sudoku.errors.{FieldNotEditableError, NoSudokuSelectedError, UnsolvableSudokuError}
@@ -8,7 +9,7 @@ import sudoku.models.Sudoku.SudokuField
 import sudoku.solvers.SudokuSolver
 import sudoku.testUtils.TestPuzzles
 
-class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
+class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherValues {
   val testSudoku: Sudoku = TestPuzzles.regularSudoku4x4
 
   "SolveAction" should {
@@ -19,8 +20,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = SolveAction(mockSolver).execute(Some(testSudoku))
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get mustBe testSudoku
+      newSudoku.value.get mustBe testSudoku
     }
 
     "fail on an unsolvable sudoku" in {
@@ -30,8 +30,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = SolveAction(mockSolver).execute(Some(testSudoku))
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case UnsolvableSudokuError() =>
         case _                       => fail("Wrong error type, expected UnsolvableSudokuError")
       }
@@ -44,8 +43,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = SolveAction(mockSolver).execute(None)
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case NoSudokuSelectedError() =>
         case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
       }
@@ -61,8 +59,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterNumberAction(5, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get.grid(1)(3).number.get mustBe 5
+      newSudoku.value.get.grid(1)(3).number.get mustBe 5
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
@@ -73,8 +70,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterNumberAction(1, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get.grid(1)(3).number mustBe None
+      newSudoku.value.get.grid(1)(3).number mustBe None
     }
 
     "fail when trying to enter a number in a permanent field" in {
@@ -85,8 +81,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterNumberAction(1, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case FieldNotEditableError() =>
         case _                       => fail("Wrong error type, expected FieldNotEditableError")
       }
@@ -100,8 +95,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterNumberAction(1, Position(0, 1)).execute(Some(sudoku))
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case FieldNotEditableError() =>
         case _                       => fail("Wrong error type, expected FieldNotEditableError")
       }
@@ -112,8 +106,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterNumberAction(1, Position(0, 0)).execute(sudoku)
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case NoSudokuSelectedError() =>
         case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
       }
@@ -129,8 +122,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterHelpNumberAction(5, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get.grid(1)(3).helpNumbers mustBe Seq(1, 5)
+      newSudoku.value.get.grid(1)(3).helpNumbers mustBe Seq(1, 5)
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
@@ -141,8 +133,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterHelpNumberAction(3, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get.grid(1)(3).helpNumbers mustBe Seq(4)
+      newSudoku.value.get.grid(1)(3).helpNumbers mustBe Seq(4)
     }
 
     "fail when trying to enter a number in a permanent field" in {
@@ -153,8 +144,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterHelpNumberAction(1, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case FieldNotEditableError() =>
         case _                       => fail("Wrong error type, expected FieldNotEditableError")
       }
@@ -168,8 +158,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterHelpNumberAction(1, Position(0, 1)).execute(Some(sudoku))
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case FieldNotEditableError() =>
         case _                       => fail("Wrong error type, expected FieldNotEditableError")
       }
@@ -180,8 +169,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
 
       val newSudoku = EnterHelpNumberAction(1, Position(0, 0)).execute(sudoku)
 
-      newSudoku.isLeft mustBe true
-      newSudoku.swap.getOrElse(null) match {
+      newSudoku.left.value match {
         case NoSudokuSelectedError() =>
         case _                       => fail("Wrong error type, expected NoSudokuSelectedError")
       }
@@ -192,8 +180,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory {
     "return the parsed sudoku (depends on SudokuParser)" in {
       val newSudoku = StartSudokuAction("./src/test/resources/puzzles/puzzle.4x4").execute(None)
 
-      newSudoku.isRight mustBe true
-      newSudoku.toOption.flatten.get.grid mustBe TestPuzzles.regularSudoku4x4.grid
+      newSudoku.value.get.grid mustBe TestPuzzles.regularSudoku4x4.grid
     }
   }
 }
