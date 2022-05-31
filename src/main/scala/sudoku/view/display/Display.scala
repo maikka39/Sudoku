@@ -25,6 +25,7 @@ object Display {
   def print(string: String): Unit          = Curses.addstr(string)
   def insert(string: String): Unit         = Curses.insstr(string)
   def sleep(ms: Int): Unit                 = Curses.napms(ms)
+  def setEcho(shouldEcho: Boolean): Unit   = if (shouldEcho) Curses.echo() else Curses.noecho()
   def cursorPosition: Position             = Position(Curses.getcurx(), Curses.getcury())
 
   def addTextStyle(textStyle: TextStyle): Unit    = Curses.attron(textStyle.value)
@@ -48,7 +49,7 @@ object Display {
   def setColor(colorPair: ColorPair): Unit    = Curses.attron(Curses.COLOR_PAIR(colorPair.id))
   def removeColor(colorPair: ColorPair): Unit = Curses.attroff(Curses.COLOR_PAIR(colorPair.id))
 
-  def getKeyPress: Int = Curses.getch()
+  def getKeyPress: Char = Curses.getch().toChar
 
   def quit(): Unit = Curses.endwin()
 
