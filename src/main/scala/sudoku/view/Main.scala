@@ -4,58 +4,32 @@ import sudoku.models.Game
 import sudoku.parsers.SudokuParser
 import sudoku.view.display.Display
 import sudoku.view.display.Display.{Position, TextStyle}
+import sudoku.view.printers.{InGameMenuPrinter, SudokuPrinter}
 
 object Main extends GameSetup with App {
-//  init()
-  run()
+  Display.init()
+
+  drawGame()
+
+  Display.getKeyPress
+
+  Display.quit()
 }
 
 trait GameSetup {
+  private val sudokuPosition = Position(3, 3)
+
   lazy val game: Game = new Game {
-    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.9x9").toOption
+    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.samurai").toOption
   }
-  val gridSize = 3
 
-  def run(): Unit = {
-    Display.init()
-
-    val sudokuRoot = Position(3, 5)
-    Display.moveCursor(sudokuRoot)
-
-    for (_ <- game.sudoku.get.grid.head) {
-      Display.print("+---")
-    }
-    Display.print("+")
-
-    for ((column, columnIndex) <- game.sudoku.get.grid.zipWithIndex) {
-      Display.moveCursor(Position(sudokuRoot.x, sudokuRoot.y + (columnIndex * 2) + 1))
-      Display.print("|")
-      for (field <- column) {
-        Display.print(" ")
-
-        if (field.isPermanent)
-          Display.addTextStyles(TextStyle.BOLD)
-
-        Display.print(field.number.map(_.toString).getOrElse(" "))
-
-        if (field.isPermanent)
-          Display.setTextStyle(TextStyle.NORMAL)
-
-        Display.print(" |")
+  def drawGame(): Unit = {
+    game.sudoku match {
+      case Some(sudoku) => {
+        SudokuPrinter.print(sudokuPosition, sudoku)
+        InGameMenuPrinter.print(Position(sudokuPosition.x + sudoku.grid.length * 4 + 5, sudokuPosition.y + 3))
       }
-
-      Display.moveCursor(Position(sudokuRoot.x, sudokuRoot.y + (columnIndex * 2) + 2))
-      for (_ <- game.sudoku.get.grid.head) {
-        Display.print("+---")
-      }
-      Display.print("+")
-
+      case None => ???
     }
-
-    Display.refresh()
-
-    Display.getKeyPress
-
-    Display.quit()
   }
 }

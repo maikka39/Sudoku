@@ -20,10 +20,12 @@ object Display {
 
   def refresh(): Unit                      = Curses.refresh()
   def clear(): Unit                        = Curses.clear()
-  def moveCursor(position: Position): Unit = Curses.move(position.y, position.x)
+  def moveCursor(position: Position): Unit = moveCursor(position.x, position.y)
+  def moveCursor(x: Int, y: Int): Unit     = Curses.move(y, x)
   def print(string: String): Unit          = Curses.addstr(string)
   def insert(string: String): Unit         = Curses.insstr(string)
   def sleep(ms: Int): Unit                 = Curses.napms(ms)
+  def cursorPosition: Position             = Position(Curses.getcurx(), Curses.getcury())
 
   def addTextStyle(textStyle: TextStyle): Unit    = Curses.attron(textStyle.value)
   def addTextStyles(textStyles: TextStyle*): Unit = textStyles.foreach(addTextStyle)
