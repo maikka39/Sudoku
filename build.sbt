@@ -9,7 +9,8 @@ lazy val root = (project in file("."))
   .settings(
     name := "Sudoku",
     libraryDependencies ++= Seq(
-      scalaTest                 % Test,
-      "org.scalamock"          %% "scalamock" % "5.2.0" % Test,
+      scalaTest        % Test,
+      "org.scalamock" %% "scalamock" % "5.2.0" % Test,
+      "io.webfolder"   % "curses4j"  % "1.1.0"
     )
   )
