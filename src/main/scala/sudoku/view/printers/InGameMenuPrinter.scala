@@ -1,5 +1,7 @@
 package sudoku.view.printers
 
+import sudoku.view.Actions
+import sudoku.view.Actions.Action
 import sudoku.view.display.Display
 import sudoku.view.display.Display.{Color, Position, createColorPair}
 
@@ -12,16 +14,15 @@ object InGameMenuPrinter {
     Display.print("Menu:")
     Display.moveCursor(position.x, Display.cursorPosition.y + 2)
 
-    printListItem("Solve")
-    printListItem("Exit")
+    Actions.actions.foreach(printListItem)
   }
 
-  private def printListItem(label: String): Unit = {
+  private def printListItem(action: Action): Unit = {
     val curPos = Display.cursorPosition
     Display.setColor(listStyleColor)
-    Display.print("- ")
+    Display.print(action.keybind.toString)
     Display.removeColor(listStyleColor)
-    Display.print(label)
+    Display.print(s" - ${action.label}")
     Display.moveCursor(curPos.x, curPos.y + 1)
   }
 }
