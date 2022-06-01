@@ -9,7 +9,6 @@ object SudokuPrinter {
 
   def print(startPosition: Position, sudoku: Sudoku): Unit = {
     Display.moveCursor(startPosition)
-
     drawHorizontalLine(sudoku.grid, 0)
 
     for ((column, columnIndex) <- sudoku.grid.zipWithIndex) {
@@ -40,34 +39,33 @@ object SudokuPrinter {
   }
 
   private def drawVerticalLine(column: Sudoku.Column, index: Int): Unit = {
-    if (column.drop(index).head.isActive || column.drop(index + 1).headOption.exists(_.isActive))
+    val currentField   = column.drop(index).head
+    lazy val nextField = column.drop(index + 1).headOption
+
+    if (currentField.isActive || nextField.exists(_.isActive))
       Display.print("|")
     else
       Display.print(" ")
   }
 
   private def drawHorizontalLine(grid: Sudoku.Grid, index: Int): Unit = {
-    for ((field, fieldIndex) <- grid.transpose.drop(index).head.zipWithIndex) {
-      if (
-        field.isActive || grid.transpose
-          .drop(index + 1)
-          .headOption
-          .flatMap(_.drop(fieldIndex).headOption)
-          .exists(_.isActive)
-      )
+    val transposedGrid = grid.transpose
+    val row            = transposedGrid.drop(index).head
+    val previousRow    = transposedGrid.drop(index + 1).headOption
+
+    for ((field, fieldIndex) <- row.zipWithIndex) {
+      lazy val fieldAbove  = previousRow.flatMap(_.drop(fieldIndex).headOption)
+      lazy val fieldToLeft = row.drop(fieldIndex - 1).headOption
+
+      if (field.isActive || fieldAbove.exists(_.isActive))
         Display.print("+---")
-      else if (grid.transpose.drop(index).head.drop(fieldIndex - 1).headOption.exists(_.isActive))
+      else if (fieldToLeft.exists(_.isActive))
         Display.print("+   ")
       else
         Display.print("    ")
     }
-    if (
-      grid.transpose
-        .drop(index)
-        .head
-        .last
-        .isActive || grid.transpose.drop(index + 1).headOption.map(_.last).exists(_.isActive)
-    )
+
+    if (row.last.isActive || previousRow.map(_.last).exists(_.isActive))
       Display.print("+")
     else
       Display.print(" ")
