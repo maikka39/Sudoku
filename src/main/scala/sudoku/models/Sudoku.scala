@@ -1,6 +1,6 @@
 package sudoku.models
 
-import sudoku.models.Sudoku.{FieldGroup, Grid, SudokuField}
+import sudoku.models.Sudoku.{FieldGroup, Grid}
 
 trait RegularRowsAndCols {
   val grid: Grid
@@ -45,7 +45,8 @@ trait Sudoku {
 
 object Sudoku {
   type FieldGroup = Seq[Position]
-  type Grid       = Seq[Seq[SudokuField]]
+  type Grid       = Seq[Column]
+  type Column     = Seq[SudokuField]
 
   final case class SudokuField(
     number: Option[Int],

@@ -15,29 +15,19 @@ object SudokuPrinter {
     for ((column, columnIndex) <- sudoku.grid.zipWithIndex) {
       Display.moveCursor(Position(startPosition.x, startPosition.y + (columnIndex * 2) + 1))
 
-      if (column.headOption.exists(_.isActive))
-        Display.print("|")
-      else
-        Display.print(" ")
+      drawVerticalLine(column, 0)
 
       for ((field, fieldIndex) <- column.zipWithIndex) {
-        Display.print(" ")
-
         if (field.isPermanent) {
           Display.addTextStyles(TextStyle.BOLD)
           Display.setColor(permanentNumberColor)
         }
 
-        Display.print(field.number.map(_.toString).getOrElse(" "))
+        Display.print(s" ${field.number.map(_.toString).getOrElse(" ")} ")
 
         Display.setTextStyle(TextStyle.NORMAL)
 
-        Display.print(" ")
-
-        if (field.isActive || column.drop(fieldIndex + 1).headOption.exists(_.isActive))
-          Display.print("|")
-        else
-          Display.print(" ")
+        drawVerticalLine(column, fieldIndex)
       }
 
       Display.moveCursor(Position(startPosition.x, startPosition.y + (columnIndex * 2) + 2))
@@ -47,6 +37,13 @@ object SudokuPrinter {
 
     Display.moveCursor(startPosition)
     Display.refresh()
+  }
+
+  private def drawVerticalLine(column: Sudoku.Column, index: Int): Unit = {
+    if (column.drop(index).head.isActive || column.drop(index + 1).headOption.exists(_.isActive))
+      Display.print("|")
+    else
+      Display.print(" ")
   }
 
   private def drawHorizontalLine(grid: Sudoku.Grid, index: Int): Unit = {
