@@ -12,7 +12,7 @@ object InGameMenuPrinter {
     Display.moveCursor(position)
 
     Display.print("Menu:")
-    Display.moveCursor(position.y + 2, Display.cursorPosition.x)
+    Display.moveCursor(position.y + 2, position.x)
 
     Actions.actions.foreach(printListItem)
   }
