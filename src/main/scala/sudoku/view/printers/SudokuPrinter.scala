@@ -30,22 +30,19 @@ object SudokuPrinter {
         )
     }
 
-    def drawVerticalLine(grid: Sudoku.Grid, position: GamePosition, side: Border = Border.Right): Unit = {
-      val currentField   = grid(position.y)(position.x)
-      lazy val nextField = grid.drop(position.y).headOption.flatMap(column => column.drop(position.x + 1).headOption)
+    def drawVerticalLine(grid: Sudoku.Grid, position: GamePosition): Unit = {
+      val currentField   = grid.drop(position.y).headOption.flatMap(col => col.drop(position.x).headOption)
+      lazy val nextField = grid.drop(position.y).headOption.flatMap(col => col.drop(position.x + 1).headOption)
 
-//      println(position)
-//      println(currentField.number)
-//      println(findBorders(position))
-//      println(findBorders(position).contains(side))
-//      println(!findBorders(position).contains(side))
-
-      if (findBorders(position).contains(side))
+      if (
+        findBorders(position).contains(Border.Right) || findBorders(position.copy(x = position.x + 1))
+          .contains(Border.Left)
+      )
         Display.setColor(groupBorderColor)
       else
         Display.setColor(borderColor)
 
-      if (currentField.isActive || nextField.exists(_.isActive))
+      if (currentField.exists(_.isActive) || nextField.exists(_.isActive))
         Display.print("|")
       else
         Display.print(" ")
@@ -53,24 +50,42 @@ object SudokuPrinter {
       Display.setTextStyle(TextStyle.Normal)
     }
 
-    def drawHorizontalLine(grid: Sudoku.Grid, y: Int, side: Border = Border.Bottom): Unit = {
+    def drawHorizontalLine(grid: Sudoku.Grid, y: Int): Unit = {
       val row     = grid.drop(y).head
       val nextRow = grid.drop(y + 1).headOption
 
       for ((field, x) <- row.zipWithIndex) {
-        if (findBorders(GamePosition(y, x)).contains(side))
-          Display.setColor(groupBorderColor)
-        else
-          Display.setColor(borderColor)
-
         lazy val fieldBelow  = nextRow.flatMap(_.drop(x).headOption)
         lazy val fieldToLeft = row.drop(x - 1).headOption
 
-        if (field.isActive || fieldBelow.exists(_.isActive))
-          Display.print("+---")
-        else if (fieldToLeft.exists(_.isActive))
-          Display.print("+   ")
-        else
+        if (field.isActive || fieldBelow.exists(_.isActive) || fieldToLeft.exists(_.isActive)) {
+          if (
+            findBorders(GamePosition(y, x)).contains(Border.Bottom) ||
+            findBorders(GamePosition(y, x)).contains(Border.Left) ||
+            findBorders(GamePosition(y, x - 1)).contains(Border.Bottom) ||
+            findBorders(GamePosition(y + 1, x)).contains(Border.Left) ||
+            findBorders(GamePosition(y + 1, x)).contains(Border.Top)
+          )
+            Display.setColor(groupBorderColor)
+          else
+            Display.setColor(borderColor)
+
+          Display.print("+")
+
+          Display.setTextStyle(TextStyle.Normal)
+
+          if (field.isActive || fieldBelow.exists(_.isActive)) {
+            if (
+              findBorders(GamePosition(y, x)).contains(Border.Bottom) ||
+              findBorders(GamePosition(y + 1, x)).contains(Border.Top)
+            )
+              Display.setColor(groupBorderColor)
+            else
+              Display.setColor(borderColor)
+            Display.print("---")
+          } else
+            Display.print("   ")
+        } else
           Display.print("    ")
 
         Display.setTextStyle(TextStyle.Normal)
@@ -83,12 +98,12 @@ object SudokuPrinter {
     }
 
     Display.moveCursor(startPosition)
-    drawHorizontalLine(sudoku.grid, 0, Border.Top)
+    drawHorizontalLine(sudoku.grid, -1)
 
     for ((row, y) <- sudoku.grid.zipWithIndex) {
       Display.moveCursor(Position(startPosition.y + (y * 2) + 1, startPosition.x))
 
-      drawVerticalLine(sudoku.grid, GamePosition(y, 0), Border.Left)
+      drawVerticalLine(sudoku.grid, GamePosition(y, -1))
 
       for ((field, x) <- row.zipWithIndex) {
         if (field.isPermanent) {
