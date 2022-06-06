@@ -12,13 +12,13 @@ import sudoku.view.display.Display
 import sudoku.view.display.Display.{Color, Position, TextStyle}
 
 object ErrorPrinter {
-  private val errorColor = Display.createColorPair(Color.RED, Color.WHITE)
+  private val errorColor = Display.createColorPair(Color.Red, Color.White)
 
   def print(position: Position, sudokuError: SudokuError): Unit = {
     val originalPosition = Display.cursorPosition
     Display.moveCursor(position)
     Display.setColor(errorColor)
-    Display.addTextStyle(TextStyle.BLINK)
+    Display.addTextStyle(TextStyle.Blink)
 
     val errorMessage = sudokuError match {
       case NoSudokuSelectedError() => "No sudoku has been selected!"
@@ -29,7 +29,7 @@ object ErrorPrinter {
     }
     Display.print(errorMessage)
 
-    Display.setTextStyle(TextStyle.NORMAL)
+    Display.setTextStyle(TextStyle.Normal)
     Display.moveCursor(originalPosition)
   }
 }

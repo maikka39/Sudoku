@@ -8,8 +8,8 @@ trait RegularRowsAndCols {
   val rowsAndCols: Seq[FieldGroup] = {
     val rowColListList = for {
       n <- grid.indices
-      row = grid.indices.map(x => Position(x, n))
-      col = grid.indices.map(y => Position(n, y))
+      row = grid.indices.map(x => Position(n, x))
+      col = grid.indices.map(y => Position(y, n))
     } yield Seq(row, col)
 
     rowColListList.flatten
@@ -36,7 +36,7 @@ trait Sudoku {
 
   protected def isGroupValid(fieldGroup: FieldGroup): Boolean = {
     fieldGroup
-      .map(pos => grid(pos.x)(pos.y))
+      .map(pos => grid(pos.y)(pos.x))
       .map(_.number.getOrElse(-1))
       .sorted
       .equals(List.range(1, fieldGroup.length + 1))
@@ -45,8 +45,8 @@ trait Sudoku {
 
 object Sudoku {
   type FieldGroup = Seq[Position]
-  type Grid       = Seq[Column]
-  type Column     = Seq[SudokuField]
+  type Grid       = Seq[Row]
+  type Row        = Seq[SudokuField]
 
   final case class SudokuField(
     number: Option[Int],
@@ -60,16 +60,16 @@ final class RegularSudoku(val grid: Grid) extends Sudoku with RegularRowsAndCols
   override val fieldGroups: Seq[FieldGroup] = {
     val fieldSize = grid.length match {
       case 4 => (2, 2)
-      case 6 => (3, 2)
+      case 6 => (2, 3)
       case 9 => (3, 3)
     }
 
     val coordinates = for {
-      fieldStartX <- grid.indices by fieldSize._1
-      fieldStartY <- grid.indices by fieldSize._2
-      x           <- fieldStartX until fieldStartX + fieldSize._1
-      y           <- fieldStartY until fieldStartY + fieldSize._2
-    } yield (x, y)
+      fieldStartY <- grid.indices by fieldSize._1
+      fieldStartX <- grid.indices by fieldSize._2
+      y           <- fieldStartY until fieldStartY + fieldSize._1
+      x           <- fieldStartX until fieldStartX + fieldSize._2
+    } yield (y, x)
 
     coordinates.map(pos => Position(pos._1, pos._2)).sliding(grid.length, grid.length).toSeq
   }
@@ -80,12 +80,12 @@ final class JigsawSudoku(val grid: Grid, val fieldGroups: Seq[FieldGroup]) exten
 final class SamuraiSudoku(val grid: Grid) extends Sudoku {
   override val fieldGroups: Seq[FieldGroup] = {
     val coordinates = for {
-      fieldStartX <- grid.indices by 3
       fieldStartY <- grid.indices by 3
-      if grid(fieldStartX)(fieldStartY).isActive
-      x <- fieldStartX until fieldStartX + 3
+      fieldStartX <- grid.indices by 3
+      if grid(fieldStartY)(fieldStartX).isActive
       y <- fieldStartY until fieldStartY + 3
-    } yield (x, y)
+      x <- fieldStartX until fieldStartX + 3
+    } yield (y, x)
 
     coordinates
       .map(pos => Position(pos._1, pos._2))
@@ -95,12 +95,12 @@ final class SamuraiSudoku(val grid: Grid) extends Sudoku {
 
   override val rowsAndCols: Seq[FieldGroup] = {
     val rowColListList = for {
-      centerX <- 4 until 17 by 6
       centerY <- 4 until 17 by 6
-      if grid(centerX)(centerY).isActive
+      centerX <- 4 until 17 by 6
+      if grid(centerY)(centerX).isActive
       n <- -4 until 5
-      row = (-4 until 5).map(x => Position(centerX + x, centerY + n))
-      col = (-4 until 5).map(y => Position(centerX + n, centerY + y))
+      row = (-4 until 5).map(x => Position(centerY + n, centerX + x))
+      col = (-4 until 5).map(y => Position(centerY + y, centerX + n))
     } yield Seq(row, col)
 
     rowColListList.flatten

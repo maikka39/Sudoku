@@ -1,3 +1,3 @@
 package sudoku.models
 
-case class Position(x: Int, y: Int)
+case class Position(y: Int, x: Int)

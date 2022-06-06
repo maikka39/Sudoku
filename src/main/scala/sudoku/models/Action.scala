@@ -41,16 +41,16 @@ final case class SolveAction(solver: SudokuSolver) extends Action {
 final case class EnterNumberAction(number: Int, position: Position) extends Action {
   override def execute(maybeSudoku: Option[Sudoku]): Either[SudokuError, Option[Sudoku]] = withSudoku(maybeSudoku) {
     sudoku =>
-      withEditableField(sudoku.grid(position.x)(position.y)) { currentField =>
+      withEditableField(sudoku.grid(position.y)(position.x)) { currentField =>
         val currentNumber = currentField.number
         val newNumber     = if (currentNumber.exists(_.equals(number))) None else Some(number)
 
         val newSudoku = sudoku.copy(
           sudoku.grid.updated(
-            position.x,
+            position.y,
             sudoku
-              .grid(position.x)
-              .updated(position.y, SudokuField(newNumber))
+              .grid(position.y)
+              .updated(position.x, SudokuField(newNumber))
           )
         )
 
@@ -62,7 +62,7 @@ final case class EnterNumberAction(number: Int, position: Position) extends Acti
 final case class EnterHelpNumberAction(number: Int, position: Position) extends Action {
   override def execute(maybeSudoku: Option[Sudoku]): Either[SudokuError, Option[Sudoku]] = withSudoku(maybeSudoku) {
     sudoku =>
-      withEditableField(sudoku.grid(position.x)(position.y)) { currentField =>
+      withEditableField(sudoku.grid(position.y)(position.x)) { currentField =>
         val currentNumbers = currentField.helpNumbers
 
         val newNumbers =
@@ -71,7 +71,7 @@ final case class EnterHelpNumberAction(number: Int, position: Position) extends 
 
         val newSudoku = sudoku.copy(
           sudoku.grid
-            .updated(position.x, sudoku.grid(position.x).updated(position.y, SudokuField(None, newNumbers)))
+            .updated(position.y, sudoku.grid(position.y).updated(position.x, SudokuField(None, newNumbers)))
         )
 
         Right(Some(newSudoku))

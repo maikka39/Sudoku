@@ -6,13 +6,13 @@ import sudoku.view.display.Display
 import sudoku.view.display.Display.{Color, Position, createColorPair}
 
 object InGameMenuPrinter {
-  private val listStyleColor = createColorPair(Color.YELLOW, Color.BLACK)
+  private val listStyleColor = createColorPair(Color.Yellow, Color.Black)
 
   def print(position: Position): Unit = {
     Display.moveCursor(position)
 
     Display.print("Menu:")
-    Display.moveCursor(position.x, Display.cursorPosition.y + 2)
+    Display.moveCursor(position.y + 2, Display.cursorPosition.x)
 
     Actions.actions.foreach(printListItem)
   }
@@ -23,6 +23,6 @@ object InGameMenuPrinter {
     Display.print(action.keybind.toString)
     Display.removeColor(listStyleColor)
     Display.print(s" - ${action.label}")
-    Display.moveCursor(curPos.x, curPos.y + 1)
+    Display.moveCursor(curPos.y + 1, curPos.x)
   }
 }
