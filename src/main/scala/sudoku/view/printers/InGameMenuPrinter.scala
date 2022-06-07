@@ -3,12 +3,12 @@ package sudoku.view.printers
 import sudoku.view.Actions
 import sudoku.view.Actions.Action
 import sudoku.view.display.Display
-import sudoku.view.display.Display.{Color, Position, createColorPair}
+import sudoku.view.display.Display.{Color, DisplayPosition, createColorPair}
 
 object InGameMenuPrinter {
   private val listStyleColor = createColorPair(Color.Yellow, Color.Black)
 
-  def print(position: Position): Unit = {
+  def print(position: DisplayPosition): Unit = {
     Display.moveCursor(position)
 
     Display.print("Menu:")

@@ -1,109 +1,37 @@
 package sudoku.view.printers
 
 import sudoku.models.Sudoku
+import sudoku.models.Sudoku.FieldGroup
 import sudoku.view.display.Display
-import sudoku.view.display.Display.{Color, Position, TextStyle, createColorPair}
+import sudoku.view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 import sudoku.models.{Position => GamePosition}
-import sudoku.view.printers.Border.Border
-
-protected object Border extends Enumeration {
-  type Border = Value
-
-  val Left, Top, Right, Bottom = Value
-}
+import sudoku.view.config.Config
+import sudoku.view.utils.Direction
 
 object SudokuPrinter {
   private val permanentNumberColor = createColorPair(Color.White, Color.Black)
   private val borderColor          = createColorPair(Color.Grey, Color.Black)
   private val groupBorderColor     = createColorPair(Color.White, Color.Black)
+  private val sudokuPosition       = Config.sudokuPosition
 
-  def print(startPosition: Position, sudoku: Sudoku): Unit = {
-    def findBorders(position: GamePosition): Seq[Border] = {
-      sudoku.fieldGroups
-        .find(_.exists(_ == position))
-        .toSeq
-        .flatMap(fieldGroup =>
-          Seq((-1, 0, Border.Left), (1, 0, Border.Right), (0, -1, Border.Top), (0, 1, Border.Bottom))
-            .map(rel => (fieldGroup.contains(GamePosition(position.y + rel._2, position.x + rel._1)), rel._3))
-            .filter(!_._1)
-            .map(_._2)
-        )
-    }
+  def cursorPositionToGamePosition(grid: Sudoku.Grid, cursorPosition: DisplayPosition): Option[GamePosition] = {
+    val y = (cursorPosition.y - sudokuPosition.y - 1) / 2
+    val x = (cursorPosition.x - sudokuPosition.x - 2) / 4
 
-    def drawVerticalLine(grid: Sudoku.Grid, position: GamePosition): Unit = {
-      val currentField   = grid.drop(position.y).headOption.flatMap(col => col.drop(position.x).headOption)
-      lazy val nextField = grid.drop(position.y).headOption.flatMap(col => col.drop(position.x + 1).headOption)
+    if (y < 0 || y >= grid.length || x < 0 || x >= grid.head.length)
+      None
+    else
+      Some(GamePosition(y, x))
+  }
 
-      if (
-        findBorders(position).contains(Border.Right) || findBorders(position.copy(x = position.x + 1))
-          .contains(Border.Left)
-      )
-        Display.setColor(groupBorderColor)
-      else
-        Display.setColor(borderColor)
-
-      if (currentField.exists(_.isActive) || nextField.exists(_.isActive))
-        Display.print("|")
-      else
-        Display.print(" ")
-
-      Display.setTextStyle(TextStyle.Normal)
-    }
-
-    def drawHorizontalLine(grid: Sudoku.Grid, y: Int): Unit = {
-      val row     = grid.drop(y).head
-      val nextRow = grid.drop(y + 1).headOption
-
-      for ((field, x) <- row.zipWithIndex) {
-        lazy val fieldBelow  = nextRow.flatMap(_.drop(x).headOption)
-        lazy val fieldToLeft = row.drop(x - 1).headOption
-
-        if (field.isActive || fieldBelow.exists(_.isActive) || fieldToLeft.exists(_.isActive)) {
-          if (
-            findBorders(GamePosition(y, x)).contains(Border.Bottom) ||
-            findBorders(GamePosition(y, x)).contains(Border.Left) ||
-            findBorders(GamePosition(y, x - 1)).contains(Border.Bottom) ||
-            findBorders(GamePosition(y + 1, x)).contains(Border.Left) ||
-            findBorders(GamePosition(y + 1, x)).contains(Border.Top)
-          )
-            Display.setColor(groupBorderColor)
-          else
-            Display.setColor(borderColor)
-
-          Display.print("+")
-
-          Display.setTextStyle(TextStyle.Normal)
-
-          if (field.isActive || fieldBelow.exists(_.isActive)) {
-            if (
-              findBorders(GamePosition(y, x)).contains(Border.Bottom) ||
-              findBorders(GamePosition(y + 1, x)).contains(Border.Top)
-            )
-              Display.setColor(groupBorderColor)
-            else
-              Display.setColor(borderColor)
-            Display.print("---")
-          } else
-            Display.print("   ")
-        } else
-          Display.print("    ")
-
-        Display.setTextStyle(TextStyle.Normal)
-      }
-
-      if (row.last.isActive || nextRow.map(_.last).exists(_.isActive))
-        Display.print("+")
-      else
-        Display.print(" ")
-    }
-
-    Display.moveCursor(startPosition)
-    drawHorizontalLine(sudoku.grid, -1)
+  def print(sudoku: Sudoku): Unit = {
+    Display.moveCursor(sudokuPosition)
+    drawHorizontalLine(sudoku, -1)
 
     for ((row, y) <- sudoku.grid.zipWithIndex) {
-      Display.moveCursor(Position(startPosition.y + (y * 2) + 1, startPosition.x))
+      Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 1, sudokuPosition.x))
 
-      drawVerticalLine(sudoku.grid, GamePosition(y, -1))
+      drawVerticalLine(sudoku, GamePosition(y, -1))
 
       for ((field, x) <- row.zipWithIndex) {
         if (field.isPermanent) {
@@ -115,15 +43,98 @@ object SudokuPrinter {
 
         Display.setTextStyle(TextStyle.Normal)
 
-        drawVerticalLine(sudoku.grid, GamePosition(y, x))
+        drawVerticalLine(sudoku, GamePosition(y, x))
       }
 
-      Display.moveCursor(Position(startPosition.y + (y * 2) + 2, startPosition.x))
+      Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 2, sudokuPosition.x))
 
-      drawHorizontalLine(sudoku.grid, y)
+      drawHorizontalLine(sudoku, y)
     }
 
-    Display.moveCursor(startPosition)
+    Display.moveCursor(sudokuPosition)
     Display.refresh()
+  }
+
+  private def findBorders(fieldGroups: Seq[FieldGroup], position: GamePosition) = {
+    fieldGroups
+      .find(_.exists(_ == position))
+      .toSeq
+      .flatMap(fieldGroup =>
+        Direction.values
+          .map(direction => (fieldGroup.contains(position + direction.relativePosition), direction))
+          .filter(!_._1)
+          .map(_._2)
+      )
+  }
+
+  private def drawVerticalLine(sudoku: Sudoku, position: GamePosition): Unit = {
+    val findBorders = this.findBorders(sudoku.fieldGroups, _)
+
+    val currentField   = sudoku.grid.drop(position.y).headOption.flatMap(row => row.drop(position.x).headOption)
+    lazy val nextField = sudoku.grid.drop(position.y).headOption.flatMap(row => row.drop(position.x + 1).headOption)
+
+    if (
+      findBorders(position).contains(Direction.East) || findBorders(position.copy(x = position.x + 1))
+        .contains(Direction.West)
+    )
+      Display.setColor(groupBorderColor)
+    else
+      Display.setColor(borderColor)
+
+    if (currentField.exists(_.isActive) || nextField.exists(_.isActive))
+      Display.print("|")
+    else
+      Display.print(" ")
+
+    Display.setTextStyle(TextStyle.Normal)
+  }
+
+  private def drawHorizontalLine(sudoku: Sudoku, y: Int): Unit = {
+    val findBorders = this.findBorders(sudoku.fieldGroups, _)
+
+    val row     = sudoku.grid.drop(y).head
+    val nextRow = sudoku.grid.drop(y + 1).headOption
+
+    for ((field, x) <- row.zipWithIndex) {
+      lazy val fieldBelow  = nextRow.flatMap(_.drop(x).headOption)
+      lazy val fieldToLeft = row.drop(x - 1).headOption
+
+      if (field.isActive || fieldBelow.exists(_.isActive) || fieldToLeft.exists(_.isActive)) {
+        if (
+          findBorders(GamePosition(y, x)).contains(Direction.South) ||
+          findBorders(GamePosition(y, x)).contains(Direction.West) ||
+          findBorders(GamePosition(y, x - 1)).contains(Direction.South) ||
+          findBorders(GamePosition(y + 1, x)).contains(Direction.West) ||
+          findBorders(GamePosition(y + 1, x)).contains(Direction.North)
+        )
+          Display.setColor(groupBorderColor)
+        else
+          Display.setColor(borderColor)
+
+        Display.print("+")
+
+        Display.setTextStyle(TextStyle.Normal)
+
+        if (field.isActive || fieldBelow.exists(_.isActive)) {
+          if (
+            findBorders(GamePosition(y, x)).contains(Direction.South) ||
+            findBorders(GamePosition(y + 1, x)).contains(Direction.North)
+          )
+            Display.setColor(groupBorderColor)
+          else
+            Display.setColor(borderColor)
+          Display.print("---")
+        } else
+          Display.print("   ")
+      } else
+        Display.print("    ")
+
+      Display.setTextStyle(TextStyle.Normal)
+    }
+
+    if (row.last.isActive || nextRow.map(_.last).exists(_.isActive))
+      Display.print("+")
+    else
+      Display.print(" ")
   }
 }

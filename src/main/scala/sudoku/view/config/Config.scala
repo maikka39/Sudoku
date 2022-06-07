@@ -1,8 +1,8 @@
 package sudoku.view.config
 
-import sudoku.view.display.Display.Position
+import sudoku.view.display.Display.DisplayPosition
 
 object Config {
-  val sudokuPosition: Position = Position(3, 3)
-  val errorPosition: Position  = Position(1, 3)
+  val sudokuPosition: DisplayPosition = DisplayPosition(3, 3)
+  val errorPosition: DisplayPosition  = DisplayPosition(1, 3)
 }

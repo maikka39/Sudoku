@@ -4,12 +4,13 @@ import sudoku.models.Game
 import sudoku.parsers.SudokuParser
 import sudoku.view.config.Config
 import sudoku.view.display.Display
-import sudoku.view.display.Display.Position
+import sudoku.view.display.Display.DisplayPosition
 import sudoku.view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter}
 
 object Main extends GameSetup with App {
   Display.init()
   Display.setEcho(false)
+  Display.moveCursor(Config.sudokuPosition.y + 1, Config.sudokuPosition.x + 2)
 
   draw()
   while (true) { loop() }
@@ -27,20 +28,23 @@ trait GameSetup {
     Actions.actions
       .find(_.keybind == key)
       .foreach(action =>
-        action.onCall().flatMap(game.executeAction) match {
-          case Some(value) => ErrorPrinter.print(Config.errorPosition, value)
+        action.onCall(game.sudoku).flatMap(game.executeAction) match {
+          case Some(value) => ErrorPrinter.print(value)
           case None        => draw()
         }
       )
   }
 
   def draw(): Unit = {
+    val cursorPosition = Display.cursorPosition
     game.sudoku match {
       case Some(sudoku) => {
-        SudokuPrinter.print(Config.sudokuPosition, sudoku)
+        ErrorPrinter.clear()
+        SudokuPrinter.print(sudoku)
         InGameMenuPrinter.print(
-          Position(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
+          DisplayPosition(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
         )
+        Display.moveCursor(cursorPosition)
       }
       case None => ???
     }

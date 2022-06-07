@@ -3,11 +3,17 @@ package sudoku.view.display
 import io.webfolder.curses4j.Curses
 import sudoku.view.display.Display.Color.Color
 import sudoku.view.display.Display.TextStyle.TextStyle
+import scala.language.implicitConversions
 
 object Display {
   private var colorPairCounter = 0
 
-  case class Position(y: Int, x: Int)
+  case class DisplayPosition(y: Int, x: Int) {
+    def +(position: DisplayPosition): DisplayPosition = {
+      DisplayPosition(this.y + position.y, this.x + position.x)
+    }
+  }
+
   protected case class ColorPair(id: Int)
 
   def init(): Unit = {
@@ -18,15 +24,17 @@ object Display {
     }
   }
 
-  def refresh(): Unit                      = Curses.refresh()
-  def clear(): Unit                        = Curses.clear()
-  def moveCursor(position: Position): Unit = moveCursor(position.y, position.x)
-  def moveCursor(y: Int, x: Int): Unit     = Curses.move(y, x)
-  def print(string: String): Unit          = Curses.addstr(string)
-  def insert(string: String): Unit         = Curses.insstr(string)
-  def sleep(ms: Int): Unit                 = Curses.napms(ms)
-  def setEcho(shouldEcho: Boolean): Unit   = if (shouldEcho) Curses.echo() else Curses.noecho()
-  def cursorPosition: Position             = Position(Curses.getcury(), Curses.getcurx())
+  def refresh(): Unit                             = Curses.refresh()
+  def clear(): Unit                               = Curses.clear()
+  def moveCursor(position: DisplayPosition): Unit = moveCursor(position.y, position.x)
+  def moveCursor(y: Int, x: Int): Unit            = Curses.move(y, x)
+  def print(string: String): Unit                 = Curses.addstr(string)
+  def insert(string: String): Unit                = Curses.insstr(string)
+  def sleep(ms: Int): Unit                        = Curses.napms(ms)
+  def setEcho(shouldEcho: Boolean): Unit          = if (shouldEcho) Curses.echo() else Curses.noecho()
+  def cursorPosition: DisplayPosition             = DisplayPosition(Curses.getcury(), Curses.getcurx())
+  def width: Int                                  = Curses.getmaxx() + 1
+  def height: Int                                 = Curses.getmaxy() + 1
 
   def addTextStyle(textStyle: TextStyle): Unit    = Curses.attron(textStyle.value)
   def addTextStyles(textStyles: TextStyle*): Unit = textStyles.foreach(addTextStyle)
@@ -54,9 +62,11 @@ object Display {
   def quit(): Unit = Curses.endwin()
 
   object Color extends Enumeration {
-    type Color = ColorValue
+    type Color = Value
 
     protected case class ColorValue(value: Short) extends super.Val
+
+    implicit def valueToColorValue(x: Value): ColorValue = x.asInstanceOf[ColorValue]
 
     val Black: Color   = ColorValue(0)
     val Red: Color     = ColorValue(1)
@@ -71,9 +81,11 @@ object Display {
   }
 
   object TextStyle extends Enumeration {
-    type TextStyle = TextStyleValue
+    type TextStyle = Value
 
     protected case class TextStyleValue(value: Int) extends super.Val
+
+    implicit def valueToTextStyleValue(x: Value): TextStyleValue = x.asInstanceOf[TextStyleValue]
 
     private val NCURSES_ATTR_SHIFT = 8
 

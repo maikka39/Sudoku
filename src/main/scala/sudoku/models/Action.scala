@@ -84,3 +84,7 @@ final case class StartSudokuAction(filePath: String) extends Action {
     SudokuParser.parse(filePath).map(Some(_))
   }
 }
+
+final case class CloseSudokuAction() extends Action {
+  override def execute(maybeSudoku: Option[Sudoku]): Either[SudokuError, Option[Sudoku]] = Right(None)
+}

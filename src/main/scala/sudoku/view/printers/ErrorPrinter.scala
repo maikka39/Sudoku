@@ -1,22 +1,16 @@
 package sudoku.view.printers
 
-import sudoku.errors.{
-  FieldNotEditableError,
-  InvalidSudokuError,
-  NoSudokuSelectedError,
-  SudokuError,
-  SudokuNotFoundError,
-  UnsolvableSudokuError
-}
+import sudoku.errors._
+import sudoku.view.config.Config
 import sudoku.view.display.Display
-import sudoku.view.display.Display.{Color, Position, TextStyle}
+import sudoku.view.display.Display.{Color, TextStyle}
 
 object ErrorPrinter {
-  private val errorColor = Display.createColorPair(Color.Red, Color.White)
+  private val errorColor    = Display.createColorPair(Color.Red, Color.White)
+  private val errorPosition = Config.errorPosition
 
-  def print(position: Position, sudokuError: SudokuError): Unit = {
-    val originalPosition = Display.cursorPosition
-    Display.moveCursor(position)
+  def print(sudokuError: SudokuError): Unit = {
+    Display.moveCursor(errorPosition)
     Display.setColor(errorColor)
     Display.addTextStyle(TextStyle.Blink)
 
@@ -30,6 +24,10 @@ object ErrorPrinter {
     Display.print(errorMessage)
 
     Display.setTextStyle(TextStyle.Normal)
-    Display.moveCursor(originalPosition)
+  }
+
+  def clear(): Unit = {
+    Display.moveCursor(errorPosition)
+    Display.print(" " * 50)
   }
 }
