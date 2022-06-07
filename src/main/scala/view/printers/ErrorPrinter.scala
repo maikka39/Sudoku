@@ -11,6 +11,7 @@ object ErrorPrinter {
   private val errorPosition = Config.errorPosition
 
   def print(sudokuError: SudokuError): Unit = {
+    val originalPosition = Display.cursorPosition
     Display.moveCursor(errorPosition)
     Display.setColor(errorColor)
     Display.addTextStyle(TextStyle.Blink)
@@ -25,10 +26,13 @@ object ErrorPrinter {
     Display.print(errorMessage)
 
     Display.setTextStyle(TextStyle.Normal)
+    Display.moveCursor(originalPosition)
   }
 
   def clear(): Unit = {
+    val originalPosition = Display.cursorPosition
     Display.moveCursor(errorPosition)
     Display.print(" " * 50)
+    Display.moveCursor(originalPosition)
   }
 }

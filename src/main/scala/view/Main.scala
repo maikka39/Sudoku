@@ -7,6 +7,8 @@ import view.config.Config
 import view.display.Display
 import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter}
 
+case class State(game: Game, var isHelpMode: Boolean = false)
+
 object Main extends GameSetup with App {
   Display.init()
   Display.setEcho(false)
@@ -17,18 +19,18 @@ object Main extends GameSetup with App {
 }
 
 trait GameSetup {
-  lazy val game: Game = new Game {
-//    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.9x9").toOption
-//    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.samurai").toOption
+  val state: State = State(new Game {
+    //    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.9x9").toOption
+    //    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.samurai").toOption
     sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.jigsaw").toOption
-  }
+  })
 
   def loop(): Unit = {
     val key = Display.getKeyPress
     Actions.actions
       .find(_.keybind == key)
       .foreach(action =>
-        action.onCall(game).flatMap(game.executeAction) match {
+        action.onCall(state).flatMap(state.game.executeAction) match {
           case Some(value) => ErrorPrinter.print(value)
           case None        => draw()
         }
@@ -37,7 +39,7 @@ trait GameSetup {
 
   def draw(): Unit = {
     val cursorPosition = Display.cursorPosition
-    game.sudoku match {
+    state.game.sudoku match {
       case Some(sudoku) => {
         ErrorPrinter.clear()
         SudokuPrinter.print(sudoku)

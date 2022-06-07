@@ -1,6 +1,14 @@
 package view
 
-import sudoku.models.{CloseSudokuAction, Game, SolveAction, Sudoku, Action => GameAction}
+import sudoku.models.{
+  CloseSudokuAction,
+  EnterHelpNumberAction,
+  EnterNumberAction,
+  Game,
+  SolveAction,
+  Sudoku,
+  Action => GameAction
+}
 import sudoku.solvers.BacktrackingSudokuSolver
 import view.display.Display.DisplayPosition
 import view.utils.Direction.Direction
@@ -12,32 +20,33 @@ object Actions {
   sealed case class Action private (
     keybind: Char,
     label: String,
-    onCall: Game => Option[GameAction],
+    onCall: State => Option[GameAction],
     hidden: Boolean = false
   )
 
   val actions: Seq[Action] = Seq(
     Action('q', "Quit", { _ => onQuit() }),
-    Action('s', "Solve puzzle", { g => onSolve(g) }),
-    Action('o', "Open puzzle", { g => onOpenPuzzleFromGame(g) }),
+    Action('s', "Solve puzzle", { s => onSolve(s) }),
+    Action('o', "Open puzzle", { s => onOpenPuzzleFromGame(s) }),
+    Action('p', "Toggle help mode", { s => toggleHelpMode(s) }),
     Action('r', "Redraw", { _ => None }),
-    Action('h', "Cursor left", { g => moveCursor(g, Direction.West) }),
-    Action('j', "Cursor down", { g => moveCursor(g, Direction.South) }),
-    Action('k', "Cursor up", { g => moveCursor(g, Direction.North) }),
-    Action('l', "Cursor right", { g => moveCursor(g, Direction.East) }),
-    Action('1', "Enter 1", { g => enterNumber(g, 1) }, hidden = true),
-    Action('2', "Enter 2", { g => enterNumber(g, 2) }, hidden = true),
-    Action('3', "Enter 3", { g => enterNumber(g, 3) }, hidden = true),
-    Action('4', "Enter 4", { g => enterNumber(g, 4) }, hidden = true),
-    Action('5', "Enter 5", { g => enterNumber(g, 5) }, hidden = true),
-    Action('6', "Enter 6", { g => enterNumber(g, 6) }, hidden = true),
-    Action('7', "Enter 7", { g => enterNumber(g, 7) }, hidden = true),
-    Action('8', "Enter 8", { g => enterNumber(g, 8) }, hidden = true),
-    Action('9', "Enter 9", { g => enterNumber(g, 9) }, hidden = true)
+    Action('h', "Cursor left", { s => moveCursor(s, Direction.West) }),
+    Action('j', "Cursor down", { s => moveCursor(s, Direction.South) }),
+    Action('k', "Cursor up", { s => moveCursor(s, Direction.North) }),
+    Action('l', "Cursor right", { s => moveCursor(s, Direction.East) }),
+    Action('1', "Enter 1", { s => enterNumber(s, 1) }, hidden = true),
+    Action('2', "Enter 2", { s => enterNumber(s, 2) }, hidden = true),
+    Action('3', "Enter 3", { s => enterNumber(s, 3) }, hidden = true),
+    Action('4', "Enter 4", { s => enterNumber(s, 4) }, hidden = true),
+    Action('5', "Enter 5", { s => enterNumber(s, 5) }, hidden = true),
+    Action('6', "Enter 6", { s => enterNumber(s, 6) }, hidden = true),
+    Action('7', "Enter 7", { s => enterNumber(s, 7) }, hidden = true),
+    Action('8', "Enter 8", { s => enterNumber(s, 8) }, hidden = true),
+    Action('9', "Enter 9", { s => enterNumber(s, 9) }, hidden = true)
   )
 
-  private def moveCursor(game: Game, direction: Direction): Option[GameAction] = {
-    game.sudoku match {
+  private def moveCursor(state: State, direction: Direction): Option[GameAction] = {
+    state.game.sudoku match {
       case Some(sudoku) => moveCursorInGame(sudoku, direction)
       case None         => ???
     }
@@ -65,16 +74,29 @@ object Actions {
     None
   }
 
-  private def enterNumber(game: Game, number: Int): Option[GameAction] = {
-//    game.sudoku.flatMap(_ => )
+  private def toggleHelpMode(state: State): Option[GameAction] = {
+    state.isHelpMode = !state.isHelpMode
     None
   }
 
-  private def onSolve(game: Game): Option[GameAction] = {
-    game.sudoku.flatMap(_ => Some(SolveAction(BacktrackingSudokuSolver)))
+  private def enterNumber(state: State, number: Int): Option[GameAction] = {
+    state.game.sudoku.flatMap(sudoku =>
+      SudokuPrinter
+        .cursorPositionToGamePosition(sudoku.grid)
+        .flatMap(pos =>
+          if (state.isHelpMode)
+            Some(EnterHelpNumberAction(number, pos))
+          else
+            Some(EnterNumberAction(number, pos))
+        )
+    )
   }
 
-  private def onOpenPuzzleFromGame(game: Game): Option[GameAction] = {
-    game.sudoku.map(_ => CloseSudokuAction())
+  private def onSolve(state: State): Option[GameAction] = {
+    state.game.sudoku.flatMap(_ => Some(SolveAction(BacktrackingSudokuSolver)))
+  }
+
+  private def onOpenPuzzleFromGame(state: State): Option[GameAction] = {
+    state.game.sudoku.map(_ => CloseSudokuAction())
   }
 }

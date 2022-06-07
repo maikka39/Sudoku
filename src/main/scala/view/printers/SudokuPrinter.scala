@@ -15,7 +15,10 @@ object SudokuPrinter {
   private val groupBorderColor     = createColorPair(Color.White, Color.Black)
   private val sudokuPosition       = Config.sudokuPosition
 
-  def cursorPositionToGamePosition(grid: Sudoku.Grid, cursorPosition: DisplayPosition): Option[GamePosition] = {
+  def cursorPositionToGamePosition(
+    grid: Sudoku.Grid,
+    cursorPosition: DisplayPosition = Display.cursorPosition
+  ): Option[GamePosition] = {
     val y = (cursorPosition.y - sudokuPosition.y - 1) / 2
     val x = (cursorPosition.x - sudokuPosition.x - 2) / 4
 
