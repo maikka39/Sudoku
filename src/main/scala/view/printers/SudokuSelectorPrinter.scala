@@ -24,10 +24,10 @@ object SudokuSelectorPrinter {
     if (fileIndex < 0)
       None
     else
-      listOfFiles().drop(fileIndex).headOption
+      listOfFiles.drop(fileIndex).headOption
   }
 
-  private def listOfFiles(): Seq[String] = {
+  private def listOfFiles: Seq[String] = {
     val directory = new File(System.getProperty("user.dir"))
     if (directory.exists && directory.isDirectory) {
       directory.listFiles.filter(_.isFile).map(_.getName)
@@ -44,7 +44,7 @@ object SudokuSelectorPrinter {
     Display.removeTextStyle(TextStyle.Bold)
 
     Display.moveCursor(listStart)
-    listOfFiles().foreach(printListItem)
+    listOfFiles.foreach(printListItem)
 
   }
 
