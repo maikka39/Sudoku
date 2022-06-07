@@ -101,7 +101,7 @@ object SudokuPrinter {
         if (
           findBorders(GamePosition(y, x)).contains(Direction.South) ||
           findBorders(GamePosition(y, x)).contains(Direction.West) ||
-          findBorders(GamePosition(y, x - 1)).contains(Direction.South) ||
+          findBorders(GamePosition(y, x - 1)).contains(Direction.East) ||
           findBorders(GamePosition(y + 1, x)).contains(Direction.West) ||
           findBorders(GamePosition(y + 1, x)).contains(Direction.North)
         )
