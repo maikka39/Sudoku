@@ -9,6 +9,7 @@ import sudoku.models.{
   Action => GameAction
 }
 import sudoku.solvers.BacktrackingSudokuSolver
+import view.config.Config
 import view.display.Display
 import view.display.Display.DisplayPosition
 import view.printers.{SudokuPrinter, SudokuSelectorPrinter}
@@ -115,6 +116,9 @@ object Actions {
   }
 
   private def onOpenPuzzleFromGame(state: State): Option[GameAction] = {
-    state.game.sudoku.map(_ => CloseSudokuAction())
+    state.game.sudoku.map(_ => {
+      Display.moveCursor(Config.cursorStart)
+      CloseSudokuAction()
+    })
   }
 }
