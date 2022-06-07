@@ -1,12 +1,10 @@
 package view.printers
 
-import sudoku.models.Sudoku
 import sudoku.models.Sudoku.FieldGroup
-import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
-import sudoku.models.{Position => GamePosition}
+import sudoku.models.{Sudoku, Position => GamePosition}
 import view.config.Config
 import view.display.Display
-import view.display.Display.{Color, DisplayPosition, TextStyle}
+import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 import view.utils.Direction
 
 object SudokuPrinter {
@@ -34,7 +32,6 @@ object SudokuPrinter {
 
     for ((row, y) <- sudoku.grid.zipWithIndex) {
       Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 1, sudokuPosition.x))
-
       drawVerticalLine(sudoku, GamePosition(y, -1))
 
       for ((field, x) <- row.zipWithIndex) {
@@ -46,12 +43,10 @@ object SudokuPrinter {
         Display.print(s" ${field.number.map(_.toString).getOrElse(" ")} ")
 
         Display.setTextStyle(TextStyle.Normal)
-
         drawVerticalLine(sudoku, GamePosition(y, x))
       }
 
       Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 2, sudokuPosition.x))
-
       drawHorizontalLine(sudoku, y)
     }
 
@@ -78,8 +73,8 @@ object SudokuPrinter {
     lazy val nextField = sudoku.grid.drop(position.y).headOption.flatMap(row => row.drop(position.x + 1).headOption)
 
     if (
-      findBorders(position).contains(Direction.East) || findBorders(position.copy(x = position.x + 1))
-        .contains(Direction.West)
+      findBorders(position).contains(Direction.East) ||
+      findBorders(position.copy(x = position.x + 1)).contains(Direction.West)
     )
       Display.setColor(groupBorderColor)
     else
@@ -95,9 +90,8 @@ object SudokuPrinter {
 
   private def drawHorizontalLine(sudoku: Sudoku, y: Int): Unit = {
     val findBorders = this.findBorders(sudoku.fieldGroups, _)
-
-    val row     = sudoku.grid.drop(y).head
-    val nextRow = sudoku.grid.drop(y + 1).headOption
+    val row         = sudoku.grid.drop(y).head
+    val nextRow     = sudoku.grid.drop(y + 1).headOption
 
     for ((field, x) <- row.zipWithIndex) {
       lazy val fieldBelow  = nextRow.flatMap(_.drop(x).headOption)
@@ -127,6 +121,7 @@ object SudokuPrinter {
             Display.setColor(groupBorderColor)
           else
             Display.setColor(borderColor)
+
           Display.print("---")
         } else
           Display.print("   ")

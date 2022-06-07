@@ -3,7 +3,7 @@ package view.printers
 import view.Actions
 import view.Actions.Action
 import view.display.Display
-import view.display.Display.{Color, DisplayPosition, createColorPair}
+import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 
 object InGameMenuPrinter {
   private val listStyleColor = createColorPair(Color.Yellow, Color.Black)
@@ -11,7 +11,10 @@ object InGameMenuPrinter {
   def print(position: DisplayPosition): Unit = {
     Display.moveCursor(position)
 
+    Display.setTextStyle(TextStyle.Bold)
     Display.print("Menu:")
+    Display.removeTextStyle(TextStyle.Bold)
+
     Display.moveCursor(position.y + 2, position.x)
 
     Actions.actions.filter(!_.hidden).foreach(printListItem)

@@ -24,8 +24,13 @@ object Display {
     }
   }
 
+  def clear(): Unit = {
+    moveCursor(0, 0)
+    print(" " * 1e4.toInt)
+    moveCursor(0, 0)
+  }
+
   def refresh(): Unit                             = Curses.refresh()
-  def clear(): Unit                               = Curses.clear()
   def moveCursor(position: DisplayPosition): Unit = moveCursor(position.y, position.x)
   def moveCursor(y: Int, x: Int): Unit            = Curses.move(y, x)
   def print(string: String): Unit                 = Curses.addstr(string)

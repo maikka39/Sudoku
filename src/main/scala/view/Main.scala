@@ -1,29 +1,30 @@
 package view
 
 import sudoku.models.Game
-import sudoku.parsers.SudokuParser
-import view.display.Display.DisplayPosition
 import view.config.Config
 import view.display.Display
-import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter}
+import view.display.Display.DisplayPosition
+import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter, SudokuSelectorPrinter}
 
-case class State(game: Game, var isHelpMode: Boolean = false)
+class State {
+  val game: Game          = new Game()
+  var isHelpMode: Boolean = false
+}
 
 object Main extends GameSetup with App {
-  Display.init()
-  Display.setEcho(false)
-  Display.moveCursor(Config.sudokuPosition.y + 1, Config.sudokuPosition.x + 2)
-
+  init()
   draw()
   while (true) { loop() }
 }
 
 trait GameSetup {
-  val state: State = State(new Game {
-    //    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.9x9").toOption
-    //    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.samurai").toOption
-    sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.jigsaw").toOption
-  })
+  val state: State = new State()
+
+  def init(): Unit = {
+    Display.init()
+    Display.setEcho(false)
+    Display.moveCursor(Config.cursorStart)
+  }
 
   def loop(): Unit = {
     val key = Display.getKeyPress
@@ -39,16 +40,18 @@ trait GameSetup {
 
   def draw(): Unit = {
     val cursorPosition = Display.cursorPosition
+    Display.clear()
     state.game.sudoku match {
       case Some(sudoku) => {
-        ErrorPrinter.clear()
         SudokuPrinter.print(sudoku)
         InGameMenuPrinter.print(
           DisplayPosition(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
         )
-        Display.moveCursor(cursorPosition)
       }
-      case None => ???
+      case None => {
+        SudokuSelectorPrinter.print()
+      }
     }
+    Display.moveCursor(cursorPosition)
   }
 }

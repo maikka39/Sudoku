@@ -4,20 +4,19 @@ import sudoku.models.{
   CloseSudokuAction,
   EnterHelpNumberAction,
   EnterNumberAction,
-  Game,
   SolveAction,
   Sudoku,
   Action => GameAction
 }
 import sudoku.solvers.BacktrackingSudokuSolver
-import view.display.Display.DisplayPosition
-import view.utils.Direction.Direction
 import view.display.Display
-import view.printers.SudokuPrinter
+import view.display.Display.DisplayPosition
+import view.printers.{SudokuPrinter, SudokuSelectorPrinter}
 import view.utils.Direction
+import view.utils.Direction.Direction
 
 object Actions {
-  sealed case class Action private (
+  final case class Action private (
     keybind: Char,
     label: String,
     onCall: State => Option[GameAction],
@@ -42,15 +41,23 @@ object Actions {
     Action('6', "Enter 6", { s => enterNumber(s, 6) }, hidden = true),
     Action('7', "Enter 7", { s => enterNumber(s, 7) }, hidden = true),
     Action('8', "Enter 8", { s => enterNumber(s, 8) }, hidden = true),
-    Action('9', "Enter 9", { s => enterNumber(s, 9) }, hidden = true)
+    Action('9', "Enter 9", { s => enterNumber(s, 9) }, hidden = true),
+    Action(10.toChar, "Select", { s => select(s) }, hidden = true)
   )
 
   private def moveCursor(state: State, direction: Direction): Option[GameAction] = {
     state.game.sudoku match {
       case Some(sudoku) => moveCursorInGame(sudoku, direction)
-      case None         => ???
+      case None         => moveCursorInSelectMenu(direction)
     }
     None
+  }
+
+  private def select(state: State): Option[GameAction] = {
+    if (state.game.sudoku.isDefined)
+      None
+    else
+      SudokuSelectorPrinter.selectCurrent()
   }
 
   private def moveCursorInGame(sudoku: Sudoku, direction: Direction): Unit = {
@@ -61,11 +68,22 @@ object Actions {
       case Direction.West  => DisplayPosition(0, -4)
     }
 
-    val newPosition = Display.cursorPosition + relPos
-
+    val newPosition       = Display.cursorPosition + relPos
     val maybeGamePosition = SudokuPrinter.cursorPositionToGamePosition(sudoku.grid, newPosition)
 
     maybeGamePosition.foreach(_ => Display.moveCursor(newPosition))
+  }
+
+  private def moveCursorInSelectMenu(direction: Direction): Unit = {
+    val relPos = direction match {
+      case Direction.North => DisplayPosition(-1, 0)
+      case Direction.South => DisplayPosition(+1, 0)
+      case _               => DisplayPosition(0, 0)
+    }
+
+    val newPos = Display.cursorPosition + relPos
+
+    SudokuSelectorPrinter.getFilePathAtLocation(newPos).foreach(_ => Display.moveCursor(newPos))
   }
 
   private def onQuit(): Option[GameAction] = {

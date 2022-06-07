@@ -1,7 +1,6 @@
 package view.printers
 
 import sudoku.errors._
-import view.display.Display.{Color, TextStyle}
 import view.config.Config
 import view.display.Display
 import view.display.Display.{Color, TextStyle}
@@ -23,16 +22,10 @@ object ErrorPrinter {
       case SudokuNotFoundError()   => "Couldn't find any sudoku at that path!"
       case InvalidSudokuError()    => "This sudoku is not valid and cannot be imported!"
     }
+
     Display.print(errorMessage)
 
     Display.setTextStyle(TextStyle.Normal)
-    Display.moveCursor(originalPosition)
-  }
-
-  def clear(): Unit = {
-    val originalPosition = Display.cursorPosition
-    Display.moveCursor(errorPosition)
-    Display.print(" " * 50)
     Display.moveCursor(originalPosition)
   }
 }
