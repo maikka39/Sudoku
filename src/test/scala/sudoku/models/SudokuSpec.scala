@@ -89,6 +89,18 @@ class SudokuSpec extends AnyWordSpec with Matchers {
 
       sudoku.isValid mustBe false
     }
+
+    "mark valid fields as valid in isFieldPossiblyValid" in {
+      val sudoku = EnterNumberAction(2, Position(0, 0)).execute(Some(TestPuzzles.regularSudoku4x4)).toOption.flatten.get
+
+      sudoku.isFieldPossiblyValid(Position(0, 0)) mustBe true
+    }
+
+    "mark invalid fields as invalid in isFieldPossiblyValid" in {
+      val sudoku = EnterNumberAction(3, Position(0, 0)).execute(Some(TestPuzzles.regularSudoku4x4)).toOption.flatten.get
+
+      sudoku.isFieldPossiblyValid(Position(0, 0)) mustBe false
+    }
   }
 
   "RegularSudoku" should {

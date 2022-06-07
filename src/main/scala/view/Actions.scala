@@ -26,9 +26,11 @@ object Actions {
 
   val actions: Seq[Action] = Seq(
     Action('q', "Quit", { _ => onQuit() }),
-    Action('s', "Solve puzzle", { s => onSolve(s) }),
-    Action('o', "Open puzzle", { s => onOpenPuzzleFromGame(s) }),
-    Action('p', "Toggle help mode", { s => toggleHelpMode(s) }),
+    Action('s', "Solve puzzle", { onSolve }),
+    Action('o', "Open puzzle", { onOpenPuzzleFromGame }),
+    Action('p', "Toggle help mode", { toggleHelpMode }),
+    Action('v', "Toggle full validation", { toggleFullValidation }),
+    Action('c', "Toggle simple validation", { toggleSimpleValidation }),
     Action('r', "Redraw", { _ => None }),
     Action('h', "Cursor left", { s => moveCursor(s, Direction.West) }),
     Action('j', "Cursor down", { s => moveCursor(s, Direction.South) }),
@@ -43,7 +45,7 @@ object Actions {
     Action('7', "Enter 7", { s => enterNumber(s, 7) }, hidden = true),
     Action('8', "Enter 8", { s => enterNumber(s, 8) }, hidden = true),
     Action('9', "Enter 9", { s => enterNumber(s, 9) }, hidden = true),
-    Action(10.toChar, "Select", { s => select(s) }, hidden = true)
+    Action(10.toChar, "Select", { select }, hidden = true)
   )
 
   private def moveCursor(state: State, direction: Direction): Option[GameAction] = {
@@ -95,6 +97,15 @@ object Actions {
 
   private def toggleHelpMode(state: State): Option[GameAction] = {
     state.isHelpMode = !state.isHelpMode
+    None
+  }
+
+  private def toggleFullValidation(state: State): Option[GameAction] = {
+    state.isFullValidationActive = !state.isFullValidationActive
+    None
+  }
+  private def toggleSimpleValidation(state: State): Option[GameAction] = {
+    state.isSimpleValidationActive = !state.isSimpleValidationActive
     None
   }
 

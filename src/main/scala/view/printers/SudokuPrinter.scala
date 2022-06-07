@@ -2,6 +2,7 @@ package view.printers
 
 import sudoku.models.Sudoku.FieldGroup
 import sudoku.models.{Sudoku, Position => GamePosition}
+import view.State
 import view.config.Config
 import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
@@ -11,6 +12,8 @@ object SudokuPrinter {
   private val permanentNumberColor = createColorPair(Color.White, Color.Black)
   private val borderColor          = createColorPair(Color.Grey, Color.Black)
   private val groupBorderColor     = createColorPair(Color.White, Color.Black)
+  private val correctColor         = createColorPair(Color.Green, Color.Black)
+  private val faultyColor          = createColorPair(Color.Red, Color.Black)
   private val sudokuPosition       = Config.sudokuPosition
 
   def cursorPositionToGamePosition(
@@ -26,9 +29,11 @@ object SudokuPrinter {
       Some(GamePosition(y, x))
   }
 
-  def print(sudoku: Sudoku): Unit = {
+  def print(sudoku: Sudoku, state: State): Unit = {
     Display.moveCursor(sudokuPosition)
     drawHorizontalLine(sudoku, -1)
+
+    val maybeSolution = if (state.isFullValidationActive) state.game.solution else None
 
     for ((row, y) <- sudoku.grid.zipWithIndex) {
       Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 1, sudokuPosition.x))
@@ -38,6 +43,24 @@ object SudokuPrinter {
         if (field.isPermanent) {
           Display.addTextStyles(TextStyle.Bold)
           Display.setColor(permanentNumberColor)
+        }
+
+        if (field.number.isDefined) {
+          if (state.isFullValidationActive) {
+            if (state.game.sudoku == maybeSolution)
+              Display.setColor(correctColor)
+            else if (!field.isPermanent) {
+              if (maybeSolution.isDefined)
+                Display.setColor(correctColor)
+              else
+                Display.setColor(faultyColor)
+            }
+          }
+
+          if (state.isSimpleValidationActive && !field.isPermanent) {
+            if (!sudoku.isFieldPossiblyValid(GamePosition(y, x)))
+              Display.setColor(faultyColor)
+          }
         }
 
         Display.print(s" ${field.number.map(_.toString).getOrElse(" ")} ")

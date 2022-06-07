@@ -11,7 +11,7 @@ object BacktrackingSudokuSolver extends SudokuSolver {
 
   private def solve(sudoku: Sudoku, cell: Int): Option[Sudoku] = {
     Position(cell % sudoku.grid.length, cell / sudoku.grid.length) match {
-      case Position(_, x) if x == sudoku.grid.length => Some(sudoku)
+      case Position(_, x) if x == sudoku.grid.length => if (sudoku.isValid) Some(sudoku) else None
       case Position(y, x) if sudoku.grid(y)(x).number.isDefined || !sudoku.grid(y)(x).isActive =>
         solve(sudoku, cell + 1)
       case pos: Position =>

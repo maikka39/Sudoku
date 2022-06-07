@@ -41,6 +41,13 @@ trait Sudoku {
       .sorted
       .equals(List.range(1, fieldGroup.length + 1))
   }
+
+  def isFieldPossiblyValid(position: Position): Boolean = {
+    val applicableGroups = (fieldGroups ++ rowsAndCols).filter(fg => fg.contains(position))
+    val field            = grid(position.y)(position.x)
+
+    applicableGroups.flatten.filter(pos => pos != position).count(p => grid(p.y)(p.x).number == field.number) < 1
+  }
 }
 
 object Sudoku {

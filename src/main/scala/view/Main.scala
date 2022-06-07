@@ -7,8 +7,10 @@ import view.display.Display.DisplayPosition
 import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter, SudokuSelectorPrinter}
 
 class State {
-  val game: Game          = new Game()
-  var isHelpMode: Boolean = false
+  val game: Game                        = new Game()
+  var isHelpMode: Boolean               = false
+  var isFullValidationActive: Boolean   = false
+  var isSimpleValidationActive: Boolean = false
 }
 
 object Main extends GameSetup with App {
@@ -43,7 +45,7 @@ trait GameSetup {
     Display.clear()
     state.game.sudoku match {
       case Some(sudoku) => {
-        SudokuPrinter.print(sudoku)
+        SudokuPrinter.print(sudoku, state)
         InGameMenuPrinter.print(
           DisplayPosition(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
         )
