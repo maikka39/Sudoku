@@ -1,6 +1,7 @@
-package sudoku.view.utils
+package view.utils
+
 import sudoku.models.Position
-import sudoku.view.display.Display.DisplayPosition
+import view.display.Display.DisplayPosition
 
 import scala.language.implicitConversions
 

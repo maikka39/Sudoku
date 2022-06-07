@@ -1,8 +1,8 @@
-package sudoku.view.display
+package view.display
 
 import io.webfolder.curses4j.Curses
-import sudoku.view.display.Display.Color.Color
-import sudoku.view.display.Display.TextStyle.TextStyle
+import Display.Color.Color
+import Display.TextStyle.TextStyle
 import scala.language.implicitConversions
 
 object Display {

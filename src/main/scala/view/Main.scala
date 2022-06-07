@@ -1,11 +1,11 @@
-package sudoku.view
+package view
 
 import sudoku.models.Game
 import sudoku.parsers.SudokuParser
-import sudoku.view.config.Config
-import sudoku.view.display.Display
-import sudoku.view.display.Display.DisplayPosition
-import sudoku.view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter}
+import view.display.Display.DisplayPosition
+import view.config.Config
+import view.display.Display
+import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter}
 
 object Main extends GameSetup with App {
   Display.init()
@@ -28,7 +28,7 @@ trait GameSetup {
     Actions.actions
       .find(_.keybind == key)
       .foreach(action =>
-        action.onCall(game.sudoku).flatMap(game.executeAction) match {
+        action.onCall(game).flatMap(game.executeAction) match {
           case Some(value) => ErrorPrinter.print(value)
           case None        => draw()
         }

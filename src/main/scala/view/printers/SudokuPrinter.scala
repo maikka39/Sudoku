@@ -1,12 +1,13 @@
-package sudoku.view.printers
+package view.printers
 
 import sudoku.models.Sudoku
 import sudoku.models.Sudoku.FieldGroup
-import sudoku.view.display.Display
-import sudoku.view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
+import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 import sudoku.models.{Position => GamePosition}
-import sudoku.view.config.Config
-import sudoku.view.utils.Direction
+import view.config.Config
+import view.display.Display
+import view.display.Display.{Color, DisplayPosition, TextStyle}
+import view.utils.Direction
 
 object SudokuPrinter {
   private val permanentNumberColor = createColorPair(Color.White, Color.Black)

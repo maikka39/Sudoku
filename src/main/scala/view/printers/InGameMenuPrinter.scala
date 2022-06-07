@@ -1,9 +1,9 @@
-package sudoku.view.printers
+package view.printers
 
-import sudoku.view.Actions
-import sudoku.view.Actions.Action
-import sudoku.view.display.Display
-import sudoku.view.display.Display.{Color, DisplayPosition, createColorPair}
+import view.Actions
+import view.Actions.Action
+import view.display.Display
+import view.display.Display.{Color, DisplayPosition, createColorPair}
 
 object InGameMenuPrinter {
   private val listStyleColor = createColorPair(Color.Yellow, Color.Black)
@@ -14,7 +14,7 @@ object InGameMenuPrinter {
     Display.print("Menu:")
     Display.moveCursor(position.y + 2, position.x)
 
-    Actions.actions.foreach(printListItem)
+    Actions.actions.filter(!_.hidden).foreach(printListItem)
   }
 
   private def printListItem(action: Action): Unit = {
