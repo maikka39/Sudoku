@@ -53,7 +53,7 @@ object SudokuSelectorPrinter {
     Display.setColor(listStyleColor)
     Display.print("-")
     Display.removeColor(listStyleColor)
-    Display.print(s" ${string}")
+    Display.print(s" $string")
     Display.moveCursor(curPos.y + 1, curPos.x)
   }
 }

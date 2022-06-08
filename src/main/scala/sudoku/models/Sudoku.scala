@@ -60,7 +60,9 @@ object Sudoku {
     helpNumbers: Seq[Int] = Seq(),
     isPermanent: Boolean = false,
     isActive: Boolean = true
-  )
+  ) {
+    val isEditable: Boolean = isActive && !isPermanent
+  }
 }
 
 final class RegularSudoku(val grid: Grid) extends Sudoku with RegularRowsAndCols {
@@ -76,9 +78,11 @@ final class RegularSudoku(val grid: Grid) extends Sudoku with RegularRowsAndCols
       fieldStartX <- grid.indices by fieldSize._2
       y           <- fieldStartY until fieldStartY + fieldSize._1
       x           <- fieldStartX until fieldStartX + fieldSize._2
-    } yield (y, x)
+    } yield Position(y, x)
 
-    coordinates.map(pos => Position(pos._1, pos._2)).sliding(grid.length, grid.length).toSeq
+    coordinates
+      .sliding(grid.length, grid.length)
+      .toSeq
   }
 }
 
@@ -92,10 +96,9 @@ final class SamuraiSudoku(val grid: Grid) extends Sudoku {
       if grid(fieldStartY)(fieldStartX).isActive
       y <- fieldStartY until fieldStartY + 3
       x <- fieldStartX until fieldStartX + 3
-    } yield (y, x)
+    } yield Position(y, x)
 
     coordinates
-      .map(pos => Position(pos._1, pos._2))
       .sliding(9, 9)
       .toSeq
   }

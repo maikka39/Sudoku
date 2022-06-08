@@ -12,7 +12,7 @@ class Game {
 
   def executeAction(action: Action): Option[SudokuError] = {
     action.execute(sudoku) match {
-      case Left(error) => Some(error)
+      case Left(sudokuError) => Some(sudokuError)
       case Right(sudoku) =>
         this.sudoku = sudoku
         None

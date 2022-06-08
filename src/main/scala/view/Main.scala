@@ -1,17 +1,8 @@
 package view
 
-import sudoku.models.Game
 import view.config.Config
 import view.display.Display
-import view.display.Display.DisplayPosition
-import view.printers.{ErrorPrinter, InGameMenuPrinter, SudokuPrinter, SudokuSelectorPrinter}
-
-class State {
-  val game: Game                        = new Game()
-  var isHelpMode: Boolean               = false
-  var isFullValidationActive: Boolean   = false
-  var isSimpleValidationActive: Boolean = false
-}
+import view.printers.{ErrorPrinter, InGamePrinter, SudokuSelectorPrinter}
 
 object Main extends GameSetup with App {
   init()
@@ -34,8 +25,8 @@ trait GameSetup {
       .find(_.keybind == key)
       .foreach(action =>
         action.onCall(state).flatMap(state.game.executeAction) match {
-          case Some(value) => ErrorPrinter.print(value)
-          case None        => draw()
+          case Some(sudokuError) => ErrorPrinter.print(sudokuError)
+          case None              => draw()
         }
       )
   }
@@ -44,15 +35,8 @@ trait GameSetup {
     val cursorPosition = Display.cursorPosition
     Display.clear()
     state.game.sudoku match {
-      case Some(sudoku) => {
-        SudokuPrinter.print(sudoku, state)
-        InGameMenuPrinter.print(
-          DisplayPosition(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
-        )
-      }
-      case None => {
-        SudokuSelectorPrinter.print()
-      }
+      case Some(sudoku) => InGamePrinter.print(state, sudoku)
+      case None         => SudokuSelectorPrinter.print()
     }
     Display.moveCursor(cursorPosition)
   }

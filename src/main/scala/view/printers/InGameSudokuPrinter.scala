@@ -8,7 +8,7 @@ import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 import view.utils.Direction
 
-object SudokuPrinter {
+object InGameSudokuPrinter {
   private val permanentNumberColor = createColorPair(Color.White, Color.Black)
   private val borderColor          = createColorPair(Color.Grey, Color.Black)
   private val groupBorderColor     = createColorPair(Color.White, Color.Black)

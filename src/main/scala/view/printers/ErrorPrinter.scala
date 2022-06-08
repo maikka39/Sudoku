@@ -21,6 +21,7 @@ object ErrorPrinter {
       case UnsolvableSudokuError() => "This sudoku seems to be unsolvable!"
       case SudokuNotFoundError()   => "Couldn't find any sudoku at that path!"
       case InvalidSudokuError()    => "This sudoku is not valid and cannot be imported!"
+      case InvalidNumberError()    => "This is not a valid number!"
     }
 
     Display.print(errorMessage)

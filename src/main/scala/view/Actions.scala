@@ -12,7 +12,7 @@ import sudoku.solvers.BacktrackingSudokuSolver
 import view.config.Config
 import view.display.Display
 import view.display.Display.DisplayPosition
-import view.printers.{SudokuPrinter, SudokuSelectorPrinter}
+import view.printers.{InGameSudokuPrinter, SudokuSelectorPrinter}
 import view.utils.Direction
 import view.utils.Direction.Direction
 
@@ -72,7 +72,7 @@ object Actions {
     }
 
     val newPosition       = Display.cursorPosition + relPos
-    val maybeGamePosition = SudokuPrinter.cursorPositionToGamePosition(sudoku.grid, newPosition)
+    val maybeGamePosition = InGameSudokuPrinter.cursorPositionToGamePosition(sudoku.grid, newPosition)
 
     maybeGamePosition.foreach(_ => Display.moveCursor(newPosition))
   }
@@ -111,7 +111,7 @@ object Actions {
 
   private def enterNumber(state: State, number: Int): Option[GameAction] = {
     state.game.sudoku.flatMap(sudoku =>
-      SudokuPrinter
+      InGameSudokuPrinter
         .cursorPositionToGamePosition(sudoku.grid)
         .flatMap(pos =>
           if (state.isHelpMode)

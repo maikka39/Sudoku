@@ -7,3 +7,4 @@ final case class FieldNotEditableError() extends SudokuError
 final case class UnsolvableSudokuError() extends SudokuError
 final case class SudokuNotFoundError()   extends SudokuError
 final case class InvalidSudokuError()    extends SudokuError
+final case class InvalidNumberError()    extends SudokuError
