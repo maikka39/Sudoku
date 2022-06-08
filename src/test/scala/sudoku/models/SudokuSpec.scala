@@ -101,6 +101,35 @@ class SudokuSpec extends AnyWordSpec with Matchers {
 
       sudoku.isFieldPossiblyValid(Position(0, 0)) mustBe false
     }
+
+    "return the solution for a sudoku (depends on Solver)" in {
+      TestPuzzles.regularSudoku4x4.solution.get.grid mustBe Seq(
+        Seq(
+          SudokuField(Some(2), Seq()),
+          SudokuField(Some(3), Seq(), isPermanent = true),
+          SudokuField(Some(4), Seq(), isPermanent = true),
+          SudokuField(Some(1), Seq())
+        ),
+        Seq(
+          SudokuField(Some(4), Seq(), isPermanent = true),
+          SudokuField(Some(1), Seq()),
+          SudokuField(Some(3), Seq()),
+          SudokuField(Some(2), Seq(), isPermanent = true)
+        ),
+        Seq(
+          SudokuField(Some(1), Seq(), isPermanent = true),
+          SudokuField(Some(4), Seq()),
+          SudokuField(Some(2), Seq()),
+          SudokuField(Some(3), Seq(), isPermanent = true)
+        ),
+        Seq(
+          SudokuField(Some(3), Seq()),
+          SudokuField(Some(2), Seq(), isPermanent = true),
+          SudokuField(Some(1), Seq(), isPermanent = true),
+          SudokuField(Some(4), Seq())
+        )
+      )
+    }
   }
 
   "RegularSudoku" should {

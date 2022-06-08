@@ -4,7 +4,13 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.EitherValues
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
-import sudoku.errors.{FieldNotEditableError, NoSudokuSelectedError, SudokuNotFoundError, UnsolvableSudokuError}
+import sudoku.errors.{
+  FieldNotEditableError,
+  InvalidNumberError,
+  NoSudokuSelectedError,
+  SudokuNotFoundError,
+  UnsolvableSudokuError
+}
 import sudoku.models.Sudoku.SudokuField
 import sudoku.solvers.SudokuSolver
 import sudoku.testUtils.TestPuzzles
@@ -101,6 +107,15 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
       }
     }
 
+    "fail when an invalid number is entered" in {
+      val newSudoku = EnterNumberAction(200, Position(0, 0)).execute(Some(testSudoku))
+
+      newSudoku.left.value match {
+        case InvalidNumberError() =>
+        case _                    => fail("Wrong error type, expected InvalidNumberError")
+      }
+    }
+
     "fail when no sudoku is selected" in {
       val sudoku = None
 
@@ -190,6 +205,14 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
         case SudokuNotFoundError() =>
         case _                     => fail("Wrong error type, expected SudokuNotFoundError")
       }
+    }
+  }
+
+  "CloseSudokuAction" should {
+    "close the sudoku" in {
+      val newSudoku = CloseSudokuAction().execute(Some(TestPuzzles.regularSudoku4x4))
+
+      newSudoku.value mustBe None
     }
   }
 }

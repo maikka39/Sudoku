@@ -4,7 +4,6 @@ import org.scalamock.scalatest.MockFactory
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import sudoku.models.Sudoku.{FieldGroup, Grid, SudokuField}
-import sudoku.testUtils.TestPuzzles
 
 class GameSpec extends AnyWordSpec with Matchers with MockFactory {
   "executeAction" should {
@@ -28,41 +27,6 @@ class GameSpec extends AnyWordSpec with Matchers with MockFactory {
       game.executeAction(mockAction)
 
       game.sudoku mustBe returnedSudoku
-    }
-  }
-
-  "solution" should {
-    "return the solution for a sudoku (depends on Solver)" in {
-      val game = new Game {
-        sudoku = Some(TestPuzzles.regularSudoku4x4)
-      }
-
-      game.solution.get.grid mustBe Seq(
-        Seq(
-          SudokuField(Some(2), Seq()),
-          SudokuField(Some(3), Seq(), isPermanent = true),
-          SudokuField(Some(4), Seq(), isPermanent = true),
-          SudokuField(Some(1), Seq())
-        ),
-        Seq(
-          SudokuField(Some(4), Seq(), isPermanent = true),
-          SudokuField(Some(1), Seq()),
-          SudokuField(Some(3), Seq()),
-          SudokuField(Some(2), Seq(), isPermanent = true)
-        ),
-        Seq(
-          SudokuField(Some(1), Seq(), isPermanent = true),
-          SudokuField(Some(4), Seq()),
-          SudokuField(Some(2), Seq()),
-          SudokuField(Some(3), Seq(), isPermanent = true)
-        ),
-        Seq(
-          SudokuField(Some(3), Seq()),
-          SudokuField(Some(2), Seq(), isPermanent = true),
-          SudokuField(Some(1), Seq(), isPermanent = true),
-          SudokuField(Some(4), Seq())
-        )
-      )
     }
   }
 }
