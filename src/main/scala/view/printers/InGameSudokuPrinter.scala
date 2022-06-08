@@ -2,11 +2,10 @@ package view.printers
 
 import sudoku.models.Sudoku.FieldGroup
 import sudoku.models.{Sudoku, Position => GamePosition}
-import view.State
-import view.config.Config
 import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
-import view.utils.Direction
+import view.states.InGameState
+import view.utils.{Config, Direction}
 
 object InGameSudokuPrinter {
   private val permanentNumberColor = createColorPair(Color.White, Color.Black)
@@ -29,11 +28,11 @@ object InGameSudokuPrinter {
       Some(GamePosition(y, x))
   }
 
-  def print(sudoku: Sudoku, state: State): Unit = {
+  def print(state: InGameState, sudoku: Sudoku): Unit = {
     Display.moveCursor(sudokuPosition)
     drawHorizontalLine(sudoku, -1)
 
-    val maybeSolution = if (state.isFullValidationActive) state.game.solution else None
+    val maybeSolution = if (state.isFullValidationActive) sudoku.solution else None
 
     for ((row, y) <- sudoku.grid.zipWithIndex) {
       Display.moveCursor(DisplayPosition(sudokuPosition.y + (y * 2) + 1, sudokuPosition.x))
@@ -47,7 +46,7 @@ object InGameSudokuPrinter {
 
         if (field.number.isDefined) {
           if (state.isFullValidationActive) {
-            if (state.game.sudoku == maybeSolution)
+            if (maybeSolution.contains(sudoku))
               Display.setColor(correctColor)
             else if (!field.isPermanent) {
               if (maybeSolution.isDefined)

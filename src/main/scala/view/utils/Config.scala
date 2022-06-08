@@ -1,4 +1,4 @@
-package view.config
+package view.utils
 
 import view.display.Display.DisplayPosition
 

@@ -1,6 +1,7 @@
 package sudoku.models
 
 import sudoku.models.Sudoku.{FieldGroup, Grid}
+import sudoku.solvers.BacktrackingSudokuSolver
 
 trait RegularRowsAndCols {
   val grid: Grid
@@ -21,9 +22,10 @@ trait Sudoku {
   val fieldGroups: Seq[FieldGroup]
   val rowsAndCols: Seq[FieldGroup]
 
-  def isValid: Boolean = (fieldGroups ++ rowsAndCols).forall(isGroupValid)
+  final lazy val isValid: Boolean         = (fieldGroups ++ rowsAndCols).forall(isGroupValid)
+  final lazy val solution: Option[Sudoku] = SolveAction(BacktrackingSudokuSolver).execute(Some(this)).toOption.flatten
 
-  def copy(grid: Grid): Sudoku = {
+  final def copy(grid: Grid): Sudoku = {
     val grd = grid
     val fg  = fieldGroups
     val rc  = rowsAndCols
@@ -34,7 +36,7 @@ trait Sudoku {
     }
   }
 
-  protected def isGroupValid(fieldGroup: FieldGroup): Boolean = {
+  private def isGroupValid(fieldGroup: FieldGroup): Boolean = {
     fieldGroup
       .map(pos => grid(pos.y)(pos.x))
       .map(_.number.getOrElse(-1))
@@ -42,7 +44,7 @@ trait Sudoku {
       .equals(List.range(1, fieldGroup.length + 1))
   }
 
-  def isFieldPossiblyValid(position: Position): Boolean = {
+  final def isFieldPossiblyValid(position: Position): Boolean = {
     val applicableGroups = (fieldGroups ++ rowsAndCols).filter(fg => fg.contains(position))
     val field            = grid(position.y)(position.x)
 

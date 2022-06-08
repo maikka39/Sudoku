@@ -1,9 +1,9 @@
 package view.printers
 
 import sudoku.models.{Action, StartSudokuAction}
-import view.config.Config
 import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
+import view.utils.Config
 
 import java.io.File
 
@@ -13,10 +13,7 @@ object SudokuSelectorPrinter {
   private val listStyleColor   = createColorPair(Color.Yellow, Color.Black)
 
   def selectCurrent(): Option[Action] = {
-    val action = getFilePathAtLocation(Display.cursorPosition).map(StartSudokuAction)
-    if (action.isDefined)
-      Display.moveCursor(Config.cursorStart)
-    action
+    getFilePathAtLocation(Display.cursorPosition).map(StartSudokuAction)
   }
 
   def getFilePathAtLocation(displayPosition: DisplayPosition): Option[String] = {

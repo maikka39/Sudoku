@@ -1,9 +1,9 @@
 package view.printers
 
 import sudoku.errors._
-import view.config.Config
 import view.display.Display
 import view.display.Display.{Color, TextStyle}
+import view.utils.Config
 
 object ErrorPrinter {
   private val errorColor    = Display.createColorPair(Color.Red, Color.White)

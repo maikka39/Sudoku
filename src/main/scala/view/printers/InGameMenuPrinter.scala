@@ -1,14 +1,16 @@
 package view.printers
 
-import view.Actions
-import view.Actions.Action
+import sudoku.models.Sudoku
 import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
+import view.states.InGameState
+import view.utils.{Action, Config}
 
 object InGameMenuPrinter {
   private val listStyleColor = createColorPair(Color.Yellow, Color.Black)
 
-  def print(position: DisplayPosition): Unit = {
+  def print(state: InGameState, sudoku: Sudoku): Unit = {
+    val position = DisplayPosition(Config.sudokuPosition.y + 3, Config.sudokuPosition.x + sudoku.grid.length * 4 + 5)
     Display.moveCursor(position)
 
     Display.setTextStyle(TextStyle.Bold)
@@ -17,7 +19,7 @@ object InGameMenuPrinter {
 
     Display.moveCursor(position.y + 2, position.x)
 
-    Actions.actions.filter(!_.hidden).foreach(printListItem)
+    state.actions.filter(!_.hidden).foreach(printListItem)
   }
 
   private def printListItem(action: Action): Unit = {
