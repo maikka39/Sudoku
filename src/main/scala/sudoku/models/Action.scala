@@ -42,7 +42,8 @@ trait BaseEnterNumberAction extends Action {
   override def execute(maybeSudoku: Option[Sudoku]): Either[SudokuError, Option[Sudoku]] = withSudoku(maybeSudoku) {
     sudoku =>
       val sudokuField       = sudoku.grid(position.y)(position.x)
-      val validNumber       = Option.when(1 <= number && number <= 9)(number)
+      val maxNumber         = sudoku.fieldGroups.headOption.map(_.length).getOrElse(0)
+      val validNumber       = Option.when(1 <= number && number <= maxNumber)(number)
       val validCurrentField = Option.when(sudokuField.isEditable)(sudokuField)
 
       (validNumber, validCurrentField) match {
