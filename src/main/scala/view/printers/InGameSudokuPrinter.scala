@@ -60,9 +60,14 @@ object InGameSudokuPrinter {
             if (!sudoku.isFieldPossiblyValid(GamePosition(y, x)))
               Display.setColor(faultyColor)
           }
-        }
+          Display.print(s" ${field.number.map(_.toString).getOrElse(" ")} ")
+        } else {
+          Display.addTextStyles(TextStyle.Dim)
+          val numbers = field.helpNumbers.take(3)
 
-        Display.print(s" ${field.number.map(_.toString).getOrElse(" ")} ")
+          numbers.foreach(n => Display.print(n.toString))
+          Display.print(" " * (3 - numbers.length))
+        }
 
         Display.setTextStyle(TextStyle.Normal)
         drawVerticalLine(sudoku, GamePosition(y, x))
