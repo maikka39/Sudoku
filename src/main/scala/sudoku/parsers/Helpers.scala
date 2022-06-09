@@ -1,10 +1,10 @@
-package sudoku.parsers.helpers
+package sudoku.parsers
 
 import sudoku.models.Position
 import sudoku.models.Sudoku.{FieldGroup, Grid}
 
-trait CalculateRegularRowsAndCols {
-  def calculateRowsAndCols(grid: Grid): Seq[FieldGroup] = {
+object Helpers {
+  def calculateRegularRowsAndCols(grid: Grid): Seq[FieldGroup] = {
     val rowColListList = for {
       n <- grid.indices
       row = grid.indices.map(x => Position(n, x))

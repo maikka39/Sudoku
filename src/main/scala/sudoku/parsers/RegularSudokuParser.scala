@@ -2,9 +2,8 @@ package sudoku.parsers
 
 import sudoku.models.Sudoku.FieldGroup
 import sudoku.models.{Position, Sudoku}
-import sudoku.parsers.helpers.CalculateRegularRowsAndCols
 
-protected object RegularSudokuParser extends SudokuParser with CalculateRegularRowsAndCols {
+protected object RegularSudokuParser extends SudokuParser {
   val supportedFormats: Seq[String] = Seq("4x4", "6x6", "9x9")
 
   def parse(inputData: String): Sudoku = {
@@ -34,6 +33,6 @@ protected object RegularSudokuParser extends SudokuParser with CalculateRegularR
         .toSeq
     }
 
-    Sudoku(grid, fieldGroups, calculateRowsAndCols(grid))
+    Sudoku(grid, fieldGroups, Helpers.calculateRegularRowsAndCols(grid))
   }
 }
