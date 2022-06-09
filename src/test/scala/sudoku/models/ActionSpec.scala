@@ -63,9 +63,9 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(None)))
       )
 
-      val newSudoku = EnterNumberAction(5, Position(1, 3)).execute(Some(sudoku))
+      val newSudoku = EnterNumberAction(4, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.value.get.grid(1)(3).number.get mustBe 5
+      newSudoku.value.get.grid(1)(3).number.get mustBe 4
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
@@ -135,9 +135,9 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(None, Seq(1))))
       )
 
-      val newSudoku = EnterHelpNumberAction(5, Position(1, 3)).execute(Some(sudoku))
+      val newSudoku = EnterHelpNumberAction(4, Position(1, 3)).execute(Some(sudoku))
 
-      newSudoku.value.get.grid(1)(3).helpNumbers mustBe Seq(1, 5)
+      newSudoku.value.get.grid(1)(3).helpNumbers mustBe Seq(1, 4)
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
