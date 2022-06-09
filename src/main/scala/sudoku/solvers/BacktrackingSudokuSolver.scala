@@ -20,8 +20,8 @@ object BacktrackingSudokuSolver extends SudokuSolver {
             .filter(fg => fg.contains(pos))
             .flatten
             .map(pos => sudoku.grid(pos.y)(pos.x))
-            .filter(field => field.isActive && field.number.isDefined)
-            .map(field => field.number.get)
+            .filter(field => field.isActive)
+            .flatMap(field => field.number)
 
         def guess(n: Int) =
           solve(
