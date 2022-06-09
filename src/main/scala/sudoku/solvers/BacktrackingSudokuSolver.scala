@@ -25,7 +25,7 @@ object BacktrackingSudokuSolver extends SudokuSolver {
 
         def guess(n: Int) =
           solve(
-            sudoku.copy(sudoku.grid.updated(pos.y, sudoku.grid(pos.y).updated(pos.x, SudokuField(Some(n))))),
+            sudoku.copy(grid = sudoku.grid.updated(pos.y, sudoku.grid(pos.y).updated(pos.x, SudokuField(Some(n))))),
             cell + 1
           )
 

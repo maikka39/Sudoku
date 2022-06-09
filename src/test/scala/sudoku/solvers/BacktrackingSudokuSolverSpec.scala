@@ -10,8 +10,6 @@ class BacktrackingSudokuSolverSpec extends AnyWordSpec with Matchers {
       val sudoku       = TestPuzzles.regularSudoku4x4
       val solvedSudoku = BacktrackingSudokuSolver.solve(sudoku)
 
-      println(solvedSudoku.get.grid)
-
       solvedSudoku.get.isValid mustBe true
     }
 

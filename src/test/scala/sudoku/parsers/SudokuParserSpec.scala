@@ -11,32 +11,31 @@ class SudokuParserSpec extends AnyWordSpec with Matchers with EitherValues {
     "correctly read a 4x4 puzzle" in {
       val sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.4x4")
 
-      sudoku.value.grid mustBe TestPuzzles.regularSudoku4x4.grid
+      sudoku.value mustBe TestPuzzles.regularSudoku4x4
     }
 
     "correctly read a 6x6 puzzle" in {
       val sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.6x6")
 
-      sudoku.value.grid mustBe TestPuzzles.regularSudoku6x6.grid
+      sudoku.value mustBe TestPuzzles.regularSudoku6x6
     }
 
     "correctly read a 9x9 puzzle" in {
       val sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.9x9")
 
-      sudoku.value.grid mustBe TestPuzzles.regularSudoku9x9.grid
+      sudoku.value mustBe TestPuzzles.regularSudoku9x9
     }
 
     "correctly read a jigsaw puzzle" in {
       val sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.jigsaw")
 
-      sudoku.value.grid mustBe TestPuzzles.jigsawSudoku.grid
-      sudoku.value.fieldGroups mustBe TestPuzzles.jigsawSudoku.fieldGroups
+      sudoku.value mustBe TestPuzzles.jigsawSudoku
     }
 
     "correctly read a samurai puzzle" in {
       val sudoku = SudokuParser.parse("./src/test/resources/puzzles/puzzle.samurai")
 
-      sudoku.value.grid mustBe TestPuzzles.samuraiSudoku.grid
+      sudoku.value mustBe TestPuzzles.samuraiSudoku
     }
 
     "fail when no file is found at the given path" in {

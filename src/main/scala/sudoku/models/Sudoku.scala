@@ -1,40 +1,11 @@
 package sudoku.models
 
 import sudoku.models.Sudoku.{FieldGroup, Grid}
-import sudoku.solvers.BacktrackingSudokuSolver
+import sudoku.solvers.SudokuSolver
 
-trait RegularRowsAndCols {
-  val grid: Grid
-
-  val rowsAndCols: Seq[FieldGroup] = {
-    val rowColListList = for {
-      n <- grid.indices
-      row = grid.indices.map(x => Position(n, x))
-      col = grid.indices.map(y => Position(y, n))
-    } yield Seq(row, col)
-
-    rowColListList.flatten
-  }
-}
-
-trait Sudoku {
-  val grid: Grid
-  val fieldGroups: Seq[FieldGroup]
-  val rowsAndCols: Seq[FieldGroup]
-
-  final lazy val isValid: Boolean         = (fieldGroups ++ rowsAndCols).forall(isGroupValid)
-  final lazy val solution: Option[Sudoku] = SolveAction(BacktrackingSudokuSolver).execute(Some(this)).toOption.flatten
-
-  final def copy(grid: Grid): Sudoku = {
-    val grd = grid
-    val fg  = fieldGroups
-    val rc  = rowsAndCols
-    new Sudoku {
-      override val grid: Grid                   = grd
-      override val fieldGroups: Seq[FieldGroup] = fg
-      override val rowsAndCols: Seq[FieldGroup] = rc
-    }
-  }
+final case class Sudoku(grid: Grid, fieldGroups: Seq[FieldGroup], rowsAndCols: Seq[FieldGroup]) {
+  lazy val isValid: Boolean                                   = (fieldGroups ++ rowsAndCols).forall(isGroupValid)
+  def solution(implicit solver: SudokuSolver): Option[Sudoku] = SolveAction(solver).execute(Some(this)).toOption.flatten
 
   private def isGroupValid(fieldGroup: FieldGroup): Boolean = {
     fieldGroup
@@ -44,7 +15,7 @@ trait Sudoku {
       .equals(List.range(1, fieldGroup.length + 1))
   }
 
-  final def isFieldPossiblyValid(position: Position): Boolean = {
+  def isFieldPossiblyValid(position: Position): Boolean = {
     val applicableGroups = (fieldGroups ++ rowsAndCols).filter(fg => fg.contains(position))
     val field            = grid(position.y)(position.x)
 
@@ -64,57 +35,5 @@ object Sudoku {
     isActive: Boolean = true
   ) {
     val isEditable: Boolean = isActive && !isPermanent
-  }
-}
-
-final class RegularSudoku(val grid: Grid) extends Sudoku with RegularRowsAndCols {
-  override val fieldGroups: Seq[FieldGroup] = {
-    val fieldSize = grid.length match {
-      case 4 => (2, 2)
-      case 6 => (2, 3)
-      case 9 => (3, 3)
-    }
-
-    val coordinates = for {
-      fieldStartY <- grid.indices by fieldSize._1
-      fieldStartX <- grid.indices by fieldSize._2
-      y           <- fieldStartY until fieldStartY + fieldSize._1
-      x           <- fieldStartX until fieldStartX + fieldSize._2
-    } yield Position(y, x)
-
-    coordinates
-      .sliding(grid.length, grid.length)
-      .toSeq
-  }
-}
-
-final class JigsawSudoku(val grid: Grid, val fieldGroups: Seq[FieldGroup]) extends Sudoku with RegularRowsAndCols
-
-final class SamuraiSudoku(val grid: Grid) extends Sudoku {
-  override val fieldGroups: Seq[FieldGroup] = {
-    val coordinates = for {
-      fieldStartY <- grid.indices by 3
-      fieldStartX <- grid.indices by 3
-      if grid(fieldStartY)(fieldStartX).isActive
-      y <- fieldStartY until fieldStartY + 3
-      x <- fieldStartX until fieldStartX + 3
-    } yield Position(y, x)
-
-    coordinates
-      .sliding(9, 9)
-      .toSeq
-  }
-
-  override val rowsAndCols: Seq[FieldGroup] = {
-    val rowColListList = for {
-      centerY <- 4 until 17 by 6
-      centerX <- 4 until 17 by 6
-      if grid(centerY)(centerX).isActive
-      n <- -4 until 5
-      row = (-4 until 5).map(x => Position(centerY + n, centerX + x))
-      col = (-4 until 5).map(y => Position(centerY + y, centerX + n))
-    } yield Seq(row, col)
-
-    rowColListList.flatten
   }
 }

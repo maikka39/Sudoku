@@ -58,7 +58,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
 
   "EnterNumberAction" should {
     "enter a number when the field doesn't already have the given number and is not permanent" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(None)))
       )
@@ -69,7 +69,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1))))
       )
@@ -80,7 +80,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "fail when trying to enter a number in a permanent field" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isPermanent = true)))
       )
@@ -94,7 +94,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "fail when trying to enter a number in a inactive field" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isActive = false)))
       )
@@ -130,7 +130,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
 
   "EnterHelpNumberAction" should {
     "add a number when the field doesn't already have the given number and is not permanent" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(None, Seq(1))))
       )
@@ -141,7 +141,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "remove a number when the field already has the given number and is not permanent" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(None, Seq(3, 4))))
       )
@@ -152,7 +152,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "fail when trying to enter a number in a permanent field" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isPermanent = true)))
       )
@@ -166,7 +166,7 @@ class ActionSpec extends AnyWordSpec with Matchers with MockFactory with EitherV
     }
 
     "fail when trying to enter a number in a inactive field" in {
-      val sudoku = testSudoku.copy(
+      val sudoku = testSudoku.copy(grid =
         testSudoku.grid
           .updated(1, testSudoku.grid(1).updated(3, SudokuField(Some(1), isActive = false)))
       )

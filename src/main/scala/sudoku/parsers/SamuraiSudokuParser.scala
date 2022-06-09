@@ -1,7 +1,7 @@
 package sudoku.parsers
 
-import sudoku.models.SamuraiSudoku
-import sudoku.models.Sudoku.SudokuField
+import sudoku.models.{Position, Sudoku}
+import sudoku.models.Sudoku.{FieldGroup, SudokuField}
 
 protected object SamuraiSudokuParser extends SudokuParser {
   val supportedFormats: Seq[String] = Seq("samurai")
@@ -9,7 +9,7 @@ protected object SamuraiSudokuParser extends SudokuParser {
   private val filler =
     Seq(SudokuField(None, isActive = false), SudokuField(None, isActive = false), SudokuField(None, isActive = false))
 
-  def parse(inputData: String): SamuraiSudoku = {
+  def parse(inputData: String): Sudoku = {
     val lines = inputData.split("\n")
 
     val regularSudokuArray = lines.map(RegularSudokuParser.parse)
@@ -39,6 +39,33 @@ protected object SamuraiSudokuParser extends SudokuParser {
       regularSudokuArray(3).grid(8) ++ filler ++ regularSudokuArray(4).grid(8)
     )
 
-    new SamuraiSudoku(grid)
+    val fieldGroups: Seq[FieldGroup] = {
+      val coordinates = for {
+        fieldStartY <- grid.indices by 3
+        fieldStartX <- grid.indices by 3
+        if grid(fieldStartY)(fieldStartX).isActive
+        y <- fieldStartY until fieldStartY + 3
+        x <- fieldStartX until fieldStartX + 3
+      } yield Position(y, x)
+
+      coordinates
+        .sliding(9, 9)
+        .toSeq
+    }
+
+    val rowsAndCols: Seq[FieldGroup] = {
+      val rowColListList = for {
+        centerY <- 4 until 17 by 6
+        centerX <- 4 until 17 by 6
+        if grid(centerY)(centerX).isActive
+        n <- -4 until 5
+        row = (-4 until 5).map(x => Position(centerY + n, centerX + x))
+        col = (-4 until 5).map(y => Position(centerY + y, centerX + n))
+      } yield Seq(row, col)
+
+      rowColListList.flatten
+    }
+
+    Sudoku(grid, fieldGroups, rowsAndCols)
   }
 }

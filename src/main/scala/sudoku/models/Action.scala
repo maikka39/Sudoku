@@ -62,7 +62,7 @@ final case class EnterNumberAction(number: Int, position: Position) extends Base
     val currentNumber = currentField.number
     val newNumber     = if (currentNumber.exists(_.equals(number))) None else Some(number)
 
-    val newSudoku = sudoku.copy(
+    val newSudoku = sudoku.copy(grid =
       sudoku.grid.updated(
         position.y,
         sudoku
@@ -83,7 +83,7 @@ final case class EnterHelpNumberAction(number: Int, position: Position) extends 
       if (currentNumbers.contains(number)) currentNumbers.filter(!_.equals(number))
       else currentNumbers ++ Seq(number)
 
-    val newSudoku = sudoku.copy(
+    val newSudoku = sudoku.copy(grid =
       sudoku.grid
         .updated(position.y, sudoku.grid(position.y).updated(position.x, SudokuField(None, newNumbers)))
     )

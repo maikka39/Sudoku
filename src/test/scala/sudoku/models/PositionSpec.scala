@@ -12,5 +12,4 @@ class PositionSpec extends AnyWordSpec with Matchers {
       (pos1 + pos2) mustBe Position(5, 9)
     }
   }
-
 }
