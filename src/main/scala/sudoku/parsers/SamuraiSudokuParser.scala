@@ -4,6 +4,8 @@ import sudoku.models.SamuraiSudoku
 import sudoku.models.Sudoku.SudokuField
 
 protected object SamuraiSudokuParser extends SudokuParser {
+  val supportedFormats: Seq[String] = Seq("samurai")
+
   private val filler =
     Seq(SudokuField(None, isActive = false), SudokuField(None, isActive = false), SudokuField(None, isActive = false))
 

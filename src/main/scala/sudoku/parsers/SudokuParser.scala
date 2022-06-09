@@ -9,6 +9,8 @@ import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 trait SudokuParser {
+  val supportedFormats: Seq[String]
+
   def parse(inputData: String): Sudoku
 
   protected def charToSudokuField(char: Char): SudokuField = {
@@ -18,6 +20,9 @@ trait SudokuParser {
 }
 
 object SudokuParser {
+  private val parsers               = Seq(JigsawSudokuParser, RegularSudokuParser, SamuraiSudokuParser)
+  val supportedFormats: Seq[String] = parsers.flatMap(p => p.supportedFormats)
+
   def parse(filePath: String): Either[SudokuError, Sudoku] = {
     val puzzleType = filePath.split("\\.").last
 
@@ -34,12 +39,15 @@ object SudokuParser {
           case e                        => throw e
         }
       case Success(inputData) =>
-        puzzleType match {
-          case "4x4" | "6x6" | "9x9" => Right(RegularSudokuParser.parse(inputData))
-          case "jigsaw"              => Right(JigsawSudokuParser.parse(inputData))
-          case "samurai"             => Right(SamuraiSudokuParser.parse(inputData))
-          case _                     => Left(InvalidSudokuError())
-        }
+        parsers
+          .find(p => p.supportedFormats.contains(puzzleType))
+          .flatMap(p => Try(p.parse(inputData)).toOption)
+          .fold[Either[SudokuError, Sudoku]] {
+            Left(InvalidSudokuError())
+          } { sudoku =>
+            Right(sudoku)
+          }
+
     }
   }
 }

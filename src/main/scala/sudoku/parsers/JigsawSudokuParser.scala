@@ -3,6 +3,8 @@ package sudoku.parsers
 import sudoku.models.{JigsawSudoku, Position}
 
 protected object JigsawSudokuParser extends SudokuParser {
+  val supportedFormats: Seq[String] = Seq("jigsaw")
+
   def parse(inputData: String): JigsawSudoku = {
     val jigsawData = inputData.drop(10).split("=").toSeq
 

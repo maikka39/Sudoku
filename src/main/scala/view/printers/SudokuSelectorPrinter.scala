@@ -1,6 +1,7 @@
 package view.printers
 
 import sudoku.models.{Action, StartSudokuAction}
+import sudoku.parsers.SudokuParser
 import view.display.Display
 import view.display.Display.{Color, DisplayPosition, TextStyle, createColorPair}
 import view.utils.Config
@@ -27,7 +28,14 @@ object SudokuSelectorPrinter {
   private def listOfFiles: Seq[String] = {
     val directory = new File(System.getProperty("user.dir"))
     if (directory.exists && directory.isDirectory) {
-      directory.listFiles.filter(_.isFile).map(_.getName)
+      directory.listFiles
+        .filter(_.isFile)
+        .map(_.getName)
+        .filter(name => {
+          val extension = name.split('.').last
+
+          SudokuParser.supportedFormats.contains(extension)
+        })
     } else {
       Seq()
     }

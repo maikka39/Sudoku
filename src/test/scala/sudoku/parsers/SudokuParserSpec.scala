@@ -56,5 +56,14 @@ class SudokuParserSpec extends AnyWordSpec with Matchers with EitherValues {
         case _                    => fail("Wrong error type, expected InvalidSudokuError")
       }
     }
+
+    "fail when invalid data is given for a valid extension" in {
+      val sudoku = SudokuParser.parse("./src/test/resources/puzzles/invalid.4x4")
+
+      sudoku.left.value match {
+        case InvalidSudokuError() =>
+        case _                    => fail("Wrong error type, expected InvalidSudokuError")
+      }
+    }
   }
 }
