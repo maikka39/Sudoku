@@ -47,6 +47,9 @@ object SudokuSelectorPrinter {
     Display.setTextStyle(TextStyle.Bold)
     Display.print("Select a puzzle:")
     Display.removeTextStyle(TextStyle.Bold)
+    Display.addTextStyle(TextStyle.Dim)
+    Display.print(" (make sure the puzzles are in your current directory)")
+    Display.removeTextStyle(TextStyle.Dim)
 
     Display.moveCursor(listStart)
     listOfFiles.foreach(printListItem)
